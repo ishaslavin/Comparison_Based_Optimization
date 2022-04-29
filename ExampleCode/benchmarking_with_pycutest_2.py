@@ -17,9 +17,10 @@ from matplotlib import pyplot as plt
 from benchmarkfunctions import SparseQuadratic, MaxK
 from oracle import Oracle, Oracle_pycutest
 from pycutest_utils import run_STP_pycutest, run_GLD_pycutest, run_CMA_pycutest
-                           run_SCOBO_pycutest, run_signOPT_pycutest
+                           ,run_SCOBO_pycutest, run_signOPT_pycutest,
+                           ConstructProbWithGrad
 
-
+import scipy.optimize as sciopt
 #==========================
 # 
 # Identify the relevant problems. Currently, we restrict to unconstrained 
@@ -59,6 +60,15 @@ EVALS = np.zeros(num_algs, num_problems, num_trials)
 
 prob_number = 0
 for problem in probs_under_100:
+    #================== Work out true minimum using scipy.optimize
+    options = {"maxiter": int(1e5)}
+    ProbWithGrad = ConstructProbWithGrad(problem)
+    res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
+    target_fun_val = 1.001*res.fun # give a little leeway
+    
+    ## TO DO: Set max number of iters to 500*len(x0).
+    
+    sciopt.minimize(prob)
     for i in range(num_trials):
         p_invoke_ = pycutest.import_problem(problem)
         x0 = p_invoke_.x0

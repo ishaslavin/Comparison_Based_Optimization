@@ -15,6 +15,16 @@ from Algorithms.SignOPT2 import SignOPT
 from Algorithms.scobo_optimizer import SCOBOoptimizer
 from Algorithms.CMA_2 import CMA
 
+def ConstructProbWithGrad(prob):
+    '''
+    Short script that wraps a PyCuTEST problem, so that it outputs a tuple
+    (f(x), grad f(x)).
+    '''
+    def ProbWithGrad(x):
+        return prob.obj(x,gradient=True)
+    
+    return ProbWithGrad
+
 def run_STP_pycutest(problem, x0, function_budget, target_func_value):
     # STP.
     print('RUNNING ALGORITHM STP....')
