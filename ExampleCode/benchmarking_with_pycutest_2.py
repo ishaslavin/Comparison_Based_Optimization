@@ -46,14 +46,10 @@ for p in probs:
 #==========================
 
 num_trials = 10
+num_algs = 5
 num_problems = len(probs_under_100)
-       
-f_evals_STP = np.zeros(num_trials, num_problems)
-f_evals_GLD = np.zeros(num_trials, num_problems)
-f_evals_CMA = np.zeros(num_trials, num_problems)
-f_evals_SCOBO = np.zeros(num_trials, num_problems)
-f_evals_signOPT = np.zeros(num_trials, num_problems)
 
+EVALS = np.zeros(num_algs, num_problems, num_trials)
 
 #==========================
 # 
@@ -75,7 +71,7 @@ for problem in probs_under_100:
                                                           copy.copy(x0), 
                                                           function_budget_,
                                                           target_func_value)
-        f_evals_STP(i, prob_number) = stp_function_evals
+        EVALS(alg_num, prob_number,i) = stp_function_evals
         print('\n')
         
         ## Finish rewriting remaining invocations.
