@@ -8,7 +8,6 @@ Created on Mon Apr 25 13:43:51 2022
 Convenient functions for calling optimizers when working with pycutest.
 """
 
-from oracle import Oracle, Oracle_pycutest
 from Algorithms.stp_optimizer import STPOptimizer
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.SignOPT2 import SignOPT

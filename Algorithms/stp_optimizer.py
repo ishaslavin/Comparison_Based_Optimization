@@ -5,7 +5,7 @@
 import numpy as np
 from ExampleCode.base import BaseOptimizer
 from ExampleCode.oracle import Oracle
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
