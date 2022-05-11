@@ -28,15 +28,20 @@ import scipy.optimize as sciopt
 # ==========================
 
 probs = pycutest.find_problems(constraints='U', userN=True)
+print('probs: ', probs)
+probs = sorted(probs)
 
 probs_under_100 = []
 
 for p in probs:
     prob = pycutest.import_problem(p)
+    print('prob: ', prob)
     x0 = prob.x0
     # only want <= 100.
     if len(x0) <= 100:
         probs_under_100.append(p)
+print('probs under 100: ')
+print(probs_under_100)
         
 
 # ==========================
@@ -50,6 +55,8 @@ num_algs = 5
 num_problems = len(probs_under_100)
 
 EVALS = np.zeros((num_algs, num_problems, num_trials))
+print('EVALS before runs: ')
+print(EVALS)
 
 # target_func_value.
 """
@@ -66,19 +73,30 @@ for ex.
 #
 #==========================
 
+print('\n')
 prob_number = 0
 for problem in probs_under_100:
+    print('problem: ', problem)
+    print('type(problem): ', type(problem))
+    # TODO: problem = pycutest.import_problem(pr)
+    # TODO: print('NEW problem: ', problem)
+    '''
+    # TODO: don't output the following line. it breaks (for a good reason) since it's not type 'str'. 
+    #  print('NEW type(problem): ', type(problem))
+    '''
+
     #================== Work out true minimum using scipy.optimize
-    options = {"maxiter": int(1e5)}
-    ProbWithGrad = ConstructProbWithGrad(problem)
-    res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
+    options = {"maxiter": int(1e3)}
+    pr = pycutest.import_problem(problem)
+    ProbWithGrad = ConstructProbWithGrad(pr)
+    res = sciopt.minimize(ProbWithGrad, pr.x0, method= "BFGS", jac=True, options=options)
     target_fun_val = 1.001*res.fun # give a little leeway
     # TODO: Set max number of iters to 500*len(x0).
     #  sciopt.minimize(problem)
     for i in range(num_trials):
         p_invoke_ = pycutest.import_problem(problem)
         x0 = p_invoke_.x0
-        print('dimension of problem: ', len(x0_invoke_))
+        print('dimension of problem: ', len(x0))
         function_budget_ = 100  # should make this bigger?
         
         # =========================== STP ==================================== #
@@ -143,3 +161,7 @@ for problem in probs_under_100:
         CMA_err_list[i].append(min5)
         '''
         print('\n')
+
+print('\n')
+print('EVALS after runs: ')
+print(EVALS)
