@@ -12,7 +12,7 @@ from Algorithms.signopt_optimizer import SignOPT
 import numpy as np
 from ExampleCode.oracle import Oracle
 import matplotlib.pyplot as plt
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 
 # Defining the function
 n_def = 2000
@@ -22,18 +22,17 @@ noise_amp = 0.001
 obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 # invoke.
-function_budget = int(1e5)
+query_budget = int(1e5)
 m = 100
 x0 = np.random.randn(n_def)
 step_size = 0.2
 r = 0.1
-# max_iters = int(2e4)
-# max_iters = int(10000)
 
 # Define the comparison oracle.
 oracle = Oracle(obj_func_1)
 
-Opt = SignOPT(oracle, function_budget, x0, m, step_size, r, debug=False, function=obj_func_1)
+Opt = SignOPT(oracle, query_budget, x0, m, step_size, r, debug=False,
+              function=obj_func_1)
 # step.
 termination = False
 i = 0

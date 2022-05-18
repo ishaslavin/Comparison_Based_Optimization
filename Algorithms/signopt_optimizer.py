@@ -8,24 +8,26 @@ Created on Thu Jul 22 11:19:28 2021
 Testing implementing SignOPT as a class.
 """
 
-from ExampleCode.base import BaseOptimizer
+from Algorithms.base import BaseOptimizer
 import numpy as np
+from Algorithms.utils import random_sampling_directions
 
-from ExampleCode.utils import random_sampling_directions
 
 class SignOPT(BaseOptimizer):
-    def __init__(self, oracle, query_budget, x0, m, step_size, r, debug=False, function=None):
-        super(). __init__(self, oracle, query_budget, x0, function)
+    def __init__(self, oracle, query_budget, x0, m, step_size, r, debug=False,
+                 function=None):
+        super().__init__(oracle, query_budget, x0, function)
         self.step_size = step_size
         self.r = r
+        self.m = m
         self.debug_status = debug
         self._function = function
-        
+
         if self._function is not None:
         # In development, we'll have access to both the oracle and the function.
         # In practice this will not be the case.
             self.f_vals = [self._function(x0)]
-        
+
         self.x_vals = [x0]
         
     def signOPT_grad_estimate(self, Z, x_in):
@@ -40,7 +42,7 @@ class SignOPT(BaseOptimizer):
             comparison = self.oracle(x_in, x_in + self.r*Z[i,:])
             if self.debug_status:
                 print('comparison is' + str(comparison))
-            self._queries += 1
+            self.queries += 1
             g_hat += comparison*Z[i,:]
         
         g_hat = g_hat/ self.m
@@ -57,11 +59,11 @@ class SignOPT(BaseOptimizer):
         if self._function is not None:
             self.f_vals.append(self._function(self.x))
             
-        if self.reachedFunctionBudget(self.query_budget, self._queries):
+        if self.reachedFunctionBudget(self.query_budget, self.queries):
             # if budget is reached return current iterate.
             # solution, list of all function values, termination.
             if self._function is not None:
-                return self.x, self.f_vals, 'B', self._queries
+                return self.x, self.f_vals, 'B', self.queries
             else:
                 return None, None, 'B', None
-        return self.x, self.f_vals, False, self._queries
+        return self.x, self.f_vals, False, self.queries

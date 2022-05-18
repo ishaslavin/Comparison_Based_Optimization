@@ -1,13 +1,10 @@
 # invokes the STP algorithm class.
 from Algorithms.stp_optimizer import STPOptimizer
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 import numpy as np
 from ExampleCode.oracle import Oracle
 
-# ---------
-print('sample invoke.')
-# sample invocation.
 n = 20000  # problem dimension.
 s_exact = 200  # true sparsity.
 noiseamp = 0.001  # noise amplitude.
@@ -15,27 +12,24 @@ noiseamp = 0.001  # noise amplitude.
 
 obj_func_1 = SparseQuadratic(n, s_exact, noiseamp)
 obj_func_2 = MaxK(n, s_exact, noiseamp)
-# create an instance of STPOptimizer.
-# direction_vector_type = 0  # original.
-# direction_vector_type = 1  # gaussian.
-# direction_vector_type = 2  # uniform from sphere.
 direction_vector_type = 3  # rademacher.
-a_k = 0.1  # step-size.
-function_budget = 10000
-# initial x_0.
-x_0 = np.random.randn(n)
+step_size = 0.1  # step-size.
+query_budget = 10000
+m = 10
+x0 = np.random.randn(n)
 
 # Define the comparison oracle.
 oracle = Oracle(obj_func_1)
 
 # stp instance.
-stp1 = STPOptimizer(oracle, direction_vector_type, x_0, n, a_k, obj_func_1, function_budget)
+stp = STPOptimizer(oracle, query_budget, x0, m, step_size,
+                    direction_vector_type, function=obj_func_1)
 # step.
 termination = False
 prev_evals = 0
 while termination is False:
     # optimization step.
-    solution, func_value, termination = stp1.step()
+    solution, func_value, termination, queries = stp.step()
     # print('step')
     print('current value: ', func_value[-1])
 # plot the decreasing function.
