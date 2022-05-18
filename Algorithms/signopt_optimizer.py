@@ -3,7 +3,7 @@
 """
 Created on Thu Jul 22 11:19:28 2021
 
-@author: danielmckenzie
+@author: danielmckenzie and ishaslavin
 
 Testing implementing SignOPT as a class.
 """
@@ -15,12 +15,7 @@ from ExampleCode.utils import random_sampling_directions
 
 class SignOPT(BaseOptimizer):
     def __init__(self, oracle, query_budget, x0, m, step_size, r, debug=False, function=None):
-        self.oracle = oracle # This must be a comparison oracle.
-        self.query_budget = query_budget
-        self._queries = 0
-        self.x = x0
-        self.m = m  # number of directions sampled per iteration.
-        self.d = len(x0)
+        super(). __init__(self, oracle, query_budget, x0, function)
         self.step_size = step_size
         self.r = r
         self.debug_status = debug
@@ -30,7 +25,6 @@ class SignOPT(BaseOptimizer):
         # In development, we'll have access to both the oracle and the function.
         # In practice this will not be the case.
             self.f_vals = [self._function(x0)]
-            self._queries += 1
         
         self.x_vals = [x0]
         
@@ -56,17 +50,7 @@ class SignOPT(BaseOptimizer):
         return g_hat
     
     def step(self):
-        # rows of Z are sample directions.
-        """
-        Z = np.random.randn(self.m,self.d)
-        """
-        # *********
-        # call the UTILS function.
-        output = random_sampling_directions(self.m, self.d, 'gaussian')
-        Z = output
-        # *********
-        # TODO: Allow for different distributions.
-        
+        Z = random_sampling_directions(self.m, self.d, 'gaussian')        
         g_hat = self.signOPT_grad_estimate(Z, self.x)
         self.x -= self.step_size*g_hat
         self.x_vals.append(self.x)
@@ -81,11 +65,3 @@ class SignOPT(BaseOptimizer):
             else:
                 return None, None, 'B', None
         return self.x, self.f_vals, False, self._queries
-        
-        
-    
-    
-            
-        
-        
-

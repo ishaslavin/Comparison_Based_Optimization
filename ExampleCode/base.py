@@ -15,6 +15,16 @@ class BaseOptimizer(object):
     '''Baseclass with useful methods.
 
     Inherited by all optimizers.'''
+   def  __init__(self, oracle, query_budget, x0, function=None):
+       '''
+        Initialize attributes useful in all optimizers.
+       '''
+       self.oracle = oracle
+       self.query_budget = query_budget
+       self.queries = 0
+       self.x = x0
+       self.d = len(x0)
+       self._function = function
 
     @staticmethod
     def reachedFunctionTarget(function_target, candidate_fitness):
