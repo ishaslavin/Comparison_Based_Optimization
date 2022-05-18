@@ -11,6 +11,7 @@ Working on doing performance profiles with Pycutest.
 from __future__ import print_function
 import numpy as np
 import copy
+import pickle
 import pycutest
 from ExampleCode.oracle import Oracle_pycutest
 from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest, run_CMA_pycutest, \
@@ -141,3 +142,11 @@ for problem in probs_under_100:
         CMA_err_list[i].append(min5)
         '''
         print('\n')
+
+        
+myFile = open('Results/Comparison_Opt_May_18.p', 'wb')
+results = {"Evals": EVALS,
+           "target_function_param": 0.05
+           }
+pkl.dump(results, myFile)
+myFile.close()
