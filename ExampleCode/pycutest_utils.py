@@ -46,7 +46,7 @@ def run_STP_pycutest(problem, x0, query_budget, target_func_value):
     # step
     termination = False
     while termination is False:
-        solution, func_value, termination = stp.step()
+        solution, func_value, termination, queries = stp.step()
         if func_value <= target_func_value:
             termination = True
 
@@ -96,7 +96,7 @@ def run_signOPT_pycutest(problem, x0, query_budget, target_func_value):
     # step.
     termination = False
     while termination is False:
-        solution, func_value, termination = signopt.step()
+        solution, func_value, termination, queries = signopt.step()
         if func_value <= target_func_value:
             termination = True
 
@@ -122,7 +122,7 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
     # step.
     termination = False
     while termination is False:
-        solution, func_value, termination = scobo.step()
+        solution, func_value, termination, queries = scobo.step()
         if func_value <= target_func_value:
             termination = True
 
@@ -148,7 +148,7 @@ def run_CMA_pycutest(problem, x0, query_budget, target_func_value):
     # step.
     termination = False
     while termination is False:
-        solution, func_value, termination = cma.step()
+        solution, func_value, termination, queries = cma.step()
         if func_value[-1] <= target_func_value:
             termination = True
 
