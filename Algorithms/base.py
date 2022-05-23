@@ -12,9 +12,13 @@ import sys
 
 
 class BaseOptimizer(object):
-    '''Baseclass with useful methods.
-
-    Inherited by all optimizers.'''
+    def __init__(self, oracle, query_budget, x0, function=None):
+        self.oracle = oracle
+        self.query_budget = query_budget
+        self.queries = 0
+        self.x = x0
+        self.n = len(x0)
+        self._function = function
 
     @staticmethod
     def reachedFunctionTarget(function_target, candidate_fitness):
@@ -30,7 +34,7 @@ class BaseOptimizer(object):
         Returns:
                 bool: A boolean in indicating if function_target is reached.
         '''
-        if function_target != None:
+        if function_target is not None:
             return (candidate_fitness <= function_target)
         else:
             return False
