@@ -30,19 +30,31 @@ print('/n Finding all problems of size less than 100 /n')
 
 probs = pycutest.find_problems(constraints='U', userN=True)
 
+# old code (checked dimension of each PyCutest problem).
+'''
 probs_under_100 = []
-
 for p in probs:
-    if p == 'ARGLINB':  # This problem is causing problems
-        pass
-    else:
-        prob = pycutest.import_problem(p)
-        print(prob.name)
-        x0 = prob.x0
-        # only want <= 100.
-        if len(x0) <= 100:
-            probs_under_100.append(p)
-        
+    prob = pycutest.import_problem(p)
+    print('prob: ', prob)
+    x0 = prob.x0
+    # only want <= 100.
+    if 100 >= len(x0) >= 10:
+        probs_under_100.append(p)
+print('probs under 100: ')
+print(probs_under_100)
+'''
+
+# new code (reads in the list of problems to use from pycutest_probs_to_use.txt.
+probs_under_100 = []
+f = open("pycutest_probs_to_use.txt", "r")
+lines = f.readlines()
+for line in lines:
+    print(line)
+    probs_under_100.append(line.rstrip())
+print('\n')
+print('problems with dimension from 10 to 100: ')
+print(probs_under_100)
+print('\n')
 
 # ==========================
 # 
@@ -51,7 +63,7 @@ for p in probs:
 # ==========================
 
 num_trials = 2
-num_algs = 4 # Will be tricky to run SCOBO on workstation.
+num_algs = 4  # Will be tricky to run SCOBO on workstation.
 num_problems = len(probs_under_100)
 
 EVALS = np.zeros((num_algs, num_problems, num_trials))
@@ -154,5 +166,5 @@ myFile = open('Results/Comparison_Opt_May_23.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05
            }
-pkl.dump(results, myFile)
+pickle.dump(results, myFile)
 myFile.close()
