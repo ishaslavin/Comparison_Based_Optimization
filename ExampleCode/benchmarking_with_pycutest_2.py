@@ -113,7 +113,7 @@ for problem in probs_under_100:
         # GLD.
         print('invoking GLD in a loop....')
         alg_num_gld = 1
-        gld_f_vals, gld_function_evals = run_GLD_pycutest(oracle,
+        gld_f_vals, gld_function_evals = run_GLD_pycutest(p_invoke_,
                                                           copy.copy(x0),
                                                           function_budget_,
                                                           target_fun_val)
@@ -126,7 +126,7 @@ for problem in probs_under_100:
         # SignOPT.
         print('invoking SignOPT in a loop....')
         alg_num_signopt = 2
-        signopt_f_vals, signopt_function_evals = run_signOPT_pycutest(oracle,
+        signopt_f_vals, signopt_function_evals = run_signOPT_pycutest(p_invoke_,
                                                                       copy.copy(x0),
                                                                       function_budget_,
                                                                       target_fun_val)
@@ -135,7 +135,7 @@ for problem in probs_under_100:
         # CMA.
         print('invoking CMA in a loop....')
         alg_num_cma = 3
-        cma_f_vals, cma_function_evals = run_CMA_pycutest(oracle,
+        cma_f_vals, cma_function_evals = run_CMA_pycutest(p_invoke_,
                                                           copy.copy(x0),
                                                           function_budget_,
                                                           target_fun_val)

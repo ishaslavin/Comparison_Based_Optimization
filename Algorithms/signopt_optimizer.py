@@ -37,7 +37,7 @@ class SignOPT(BaseOptimizer):
         by Minhao Cheng et al
         """
         
-        g_hat = np.zeros(self.d)
+        g_hat = np.zeros(self.n)
         for i in range(self.m):
             comparison = self.oracle(x_in, x_in + self.r*Z[i,:])
             if self.debug_status:
@@ -52,7 +52,7 @@ class SignOPT(BaseOptimizer):
         return g_hat
     
     def step(self):
-        Z = random_sampling_directions(self.m, self.d, 'gaussian')        
+        Z = random_sampling_directions(self.m, self.n, 'gaussian')
         g_hat = self.signOPT_grad_estimate(Z, self.x)
         self.x -= self.step_size*g_hat
         self.x_vals.append(self.x)

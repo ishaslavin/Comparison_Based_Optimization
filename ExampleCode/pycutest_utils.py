@@ -47,7 +47,7 @@ def run_STP_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = stp.step()
-        if func_value <= target_func_value:
+        if func_value[-1] <= target_func_value:
             termination = True
 
     return stp.f_vals, stp.queries
@@ -71,7 +71,7 @@ def run_GLD_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination = gld.step()
-        if func_value <= target_func_value:
+        if func_value[-1] <= target_func_value:
             termination = True
 
     return gld.f_vals, gld.queries
@@ -97,7 +97,7 @@ def run_signOPT_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = signopt.step()
-        if func_value <= target_func_value:
+        if func_value[-1] <= target_func_value:
             termination = True
 
     return signopt.f_vals, signopt.queries
@@ -123,7 +123,7 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = scobo.step()
-        if func_value <= target_func_value:
+        if func_value[-1] <= target_func_value:
             termination = True
 
     return scobo.f_vals, scobo.queries
