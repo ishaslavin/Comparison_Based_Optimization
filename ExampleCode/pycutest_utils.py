@@ -11,7 +11,7 @@ Convenient functions for calling optimizers when working with pycutest.
 from Algorithms.stp_optimizer import STPOptimizer
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.SignOPT2 import SignOPT
-from Algorithms.scobo_optimizer import SCOBOoptimizer
+# from Algorithms.scobo_optimizer import SCOBOoptimizer
 from Algorithms.CMA_2 import CMA
 
 def ConstructProbWithGrad(prob):
@@ -24,19 +24,19 @@ def ConstructProbWithGrad(prob):
     
     return ProbWithGrad
 
-def run_STP_pycutest(problem, x0, function_budget, target_func_value):
+def run_STP_pycutest(problem, x0, query_budget, target_func_value):
     # STP.
     print('RUNNING ALGORITHM STP....')
     p = problem
     direction_vector_type = 2  # uniform from sphere.
-    a_k = 0.001  # step-size.
+    step_size = 0.001  # step-size.
     n = len(x0)  # problem dimension.
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
     '''
     oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
-    stp = STPOptimizer(oracle_stp, direction_vector_type, x0, n, a_k, p.obj,
-                        2 * function_budget)
+    stp = STPOptimizer(oracle_stp, query_budget, x0, n, step_size,
+                       direction_vector_type, p.obj, function_budget)
   
     # step
     termination = False

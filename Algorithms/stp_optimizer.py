@@ -4,7 +4,8 @@ from Algorithms.utils import random_sampling_directions, multiple_comparisons_or
 
 
 class STPOptimizer(BaseOptimizer):
-    def __init__(self, oracle, query_budget, x0, m, step_size, direction_vector_type, function=None):
+    def __init__(self, oracle, query_budget, x0, step_size,
+                 direction_vector_type, function=None):
         super().__init__(oracle, query_budget, x0, function)
         self.direction_vector_type = direction_vector_type
         self.step_size = step_size

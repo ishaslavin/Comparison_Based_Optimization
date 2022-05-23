@@ -14,8 +14,9 @@ import copy
 import pickle
 import pycutest
 from ExampleCode.oracle import Oracle_pycutest
-from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest, run_CMA_pycutest, \
-    run_SCOBO_pycutest, run_signOPT_pycutest, ConstructProbWithGrad
+from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest
+from ExampleCode.pycutest_utils import run_CMA_pycutest, run_signOPT_pycutest
+from ExampleCode.pycutest_utils import ConstructProbWithGrad  # ,run_SCOBO_pycutest
 
 import scipy.optimize as sciopt
 # ==========================
@@ -25,16 +26,22 @@ import scipy.optimize as sciopt
 #
 # ==========================
 
+print('/n Finding all problems of size less than 100 /n')
+
 probs = pycutest.find_problems(constraints='U', userN=True)
 
 probs_under_100 = []
 
 for p in probs:
-    prob = pycutest.import_problem(p)
-    x0 = prob.x0
-    # only want <= 100.
-    if len(x0) <= 100:
-        probs_under_100.append(p)
+    if p == 'ARGLINB':  # This problem is causing problems
+        pass
+    else:
+        prob = pycutest.import_problem(p)
+        print(prob.name)
+        x0 = prob.x0
+        # only want <= 100.
+        if len(x0) <= 100:
+            probs_under_100.append(p)
         
 
 # ==========================
@@ -43,8 +50,8 @@ for p in probs:
 #
 # ==========================
 
-num_trials = 10
-num_algs = 5
+num_trials = 2
+num_algs = 4 # Will be tricky to run SCOBO on workstation.
 num_problems = len(probs_under_100)
 
 EVALS = np.zeros((num_algs, num_problems, num_trials))
@@ -67,23 +74,24 @@ for ex.
 prob_number = 0
 for problem in probs_under_100:
     #================== Work out true minimum using scipy.optimize
-    options = {"maxiter": int(1e5)}
+    options = {"maxiter": int(1e4)}
     ProbWithGrad = ConstructProbWithGrad(problem)
-    res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
-    target_fun_val = 1.001*res.fun # give a little leeway
+    # res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
+    # target_fun_val = 1.001*res.fun # give a little leeway
     # TODO: Set max number of iters to 500*len(x0).
     #  sciopt.minimize(problem)
     p_invoke_ = pycutest.import_problem(problem)
     oracle = Oracle_pycutest(p_invoke_)
+    ## CHECK where oracle should be instantiated and called
     x0 = p_invoke_.x0
-    print('dimension of problem: ', len(x0_invoke_))
-    function_budget_ = int(1e5)  # should make this bigger?
-    
+    print('dimension of problem: ', len(x0))
+    function_budget_ = int(1e4)  # should make this bigger?
+    target_fun_val = 0.05*p_invoke_.obj(x0)
     for i in range(num_trials): 
         # =========================== STP ==================================== #
         print('invoking STP in a loop....')
         alg_num_stp = 0
-        stp_f_vals, stp_function_evals = run_STP_pycutest(oracle,
+        stp_f_vals, stp_function_evals = run_STP_pycutest(p_invoke_,
                                                           copy.copy(x0),
                                                           function_budget_,
                                                           target_fun_val)
@@ -110,28 +118,11 @@ for problem in probs_under_100:
                                                                       copy.copy(x0),
                                                                       function_budget_,
                                                                       target_fun_val)
-        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
-        '''
-        min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        SignOPT_err_list[i].append(min3)
-        '''
-        print('\n')
-        # SCOBO.
-        print('invoking SCOBO in a loop....')
-        alg_num_scobo = 3
-        scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(oracle,
-                                                                copy.copy(x0),
-                                                                function_budget_,
-                                                                target_fun_val)
-        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
-        '''
-        min4 = run_SCOBO_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        SCOBO_err_list[i].append(min4)
-        '''
+
         print('\n')
         # CMA.
         print('invoking CMA in a loop....')
-        alg_num_cma = 4
+        alg_num_cma = 3
         cma_f_vals, cma_function_evals = run_CMA_pycutest(oracle,
                                                           copy.copy(x0),
                                                           function_budget_,
@@ -142,9 +133,24 @@ for problem in probs_under_100:
         CMA_err_list[i].append(min5)
         '''
         print('\n')
+        
+        #        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
+#        '''
+#        min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+#        SignOPT_err_list[i].append(min3)
+#        '''
+#        print('\n')
+#        # SCOBO.
+#        print('invoking SCOBO in a loop....')
+#        alg_num_scobo = 4
+#        scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(oracle,
+#                                                                copy.copy(x0),
+#                                                                function_budget_,
+#                                                                target_fun_val)
+#        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
 
         
-myFile = open('Results/Comparison_Opt_May_18.p', 'wb')
+myFile = open('Results/Comparison_Opt_May_23.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05
            }
