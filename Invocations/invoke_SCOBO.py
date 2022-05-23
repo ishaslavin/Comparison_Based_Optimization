@@ -10,16 +10,16 @@ from Algorithms.scobo_optimizer import SCOBOoptimizer
 import numpy as np
 from ExampleCode.oracle import Oracle
 import matplotlib.pyplot as plt
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 
 # Defining the function
 n_def = 200
 s_exact = 20
 noise_amp = 0.001
 func = SparseQuadratic(n_def, s_exact, noise_amp)
-query_budget = int(1e5)
+query_budget = int(1e3)
 m = 100  # Should always be larger than s_exact
-#x0 = 100*np.random.randn(n_def)
+# x0 = 100*np.random.randn(n_def)
 x0 = np.random.randn(n_def)
 step_size = 0.01
 r = 0.1
@@ -29,7 +29,9 @@ r = 0.1
 # Define the comparison oracle
 oracle = Oracle(func)
 
-Opt = SCOBOoptimizer(oracle, step_size, query_budget, x0, r, m, s_exact, objfunc=func)
+# def __init__(self, oracle, step_size, query_budget, x0, r, m, s, function=None):
+# Opt = SCOBOoptimizer(oracle, step_size, query_budget, x0, r, m, s_exact, objfunc=func)  # OLD.
+Opt = SCOBOoptimizer(oracle, step_size, query_budget, x0, r, m, s_exact, function=func)  # NEW.
 # step.
 termination = False
 prev_evals = 0
@@ -44,9 +46,11 @@ print('\n')
 print('solution: ', solution)
 # plot the decreasing function.
 plt.plot(func_value)
+plt.title("plot")
 plt.show()
 plt.close()
 plt.semilogy(func_value)
+plt.title("log plot")
 plt.show()
 plt.close()
 

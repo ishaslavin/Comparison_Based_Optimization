@@ -22,7 +22,7 @@ noise_amp = 0.001
 obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 # invoke.
-query_budget = int(1e5)
+query_budget = int(1e3)
 m = 100
 x0 = np.random.randn(n_def)
 step_size = 0.2
@@ -41,12 +41,15 @@ while termination is False:
     solution, func_value, termination, queries = Opt.step()
     # print('step')
     print('current value at ' + str(i) + ': ', func_value[-1])
+print('solution: ', solution)
 # plot the decreasing function.
 plt.plot(func_value)
+plt.title("plot")
 plt.show()
 plt.close()
 # log x-axis.
 plt.semilogy(func_value)
+plt.title("log plot")
 plt.show()
 plt.close()
 
