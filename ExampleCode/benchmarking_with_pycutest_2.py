@@ -130,6 +130,8 @@ for problem in probs_under_100:
                                                                       copy.copy(x0),
                                                                       function_budget_,
                                                                       target_fun_val)
+        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
+        print('SignOPT function_evals ' + str(signopt_function_evals) + '\n')
 
         print('\n')
         # CMA.
@@ -161,8 +163,9 @@ for problem in probs_under_100:
 #                                                                target_fun_val)
 #        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
 
+    prob_number +=1
         
-myFile = open('Results/Comparison_Opt_May_24.p', 'wb')
+myFile = open('Results/Comparison_Opt_May_25_2.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05
            }
