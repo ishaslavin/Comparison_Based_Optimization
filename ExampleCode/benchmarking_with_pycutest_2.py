@@ -97,7 +97,7 @@ for problem in probs_under_100:
     ## CHECK where oracle should be instantiated and called
     x0 = p_invoke_.x0
     print('dimension of problem: ', len(x0))
-    function_budget_ = int(1e4)  # should make this bigger?
+    function_budget_ = int(5e5)  # should make this bigger?
     target_fun_val = 0.05*p_invoke_.obj(x0)
     for i in range(num_trials): 
         # =========================== STP ==================================== #
@@ -165,9 +165,10 @@ for problem in probs_under_100:
 
     prob_number +=1
         
-myFile = open('Results/Comparison_Opt_May_25_2.p', 'wb')
+myFile = open('Results/Comparison_Opt_May_25_3.p', 'wb')
 results = {"Evals": EVALS,
-           "target_function_param": 0.05
+           "target_function_param": 0.05,
+           "function_budget": function_budget
            }
 pickle.dump(results, myFile)
 myFile.close()
