@@ -7,18 +7,23 @@ import pycutest
 
 # all pycutest problems.
 probs = pycutest.find_problems(constraints='U', userN=True)
-print('probs: ', probs)
+# print('probs: ', probs)
 probs = sorted(probs)
 
 # find problems that are >= dimension 10 and <= dimension 100.
 probs_10_to_100 = []
 for p in probs:
-    prob = pycutest.import_problem(p)
-    print('prob: ', prob)
-    x0 = prob.x0
-    # only want <= 100.
-    if 100 >= len(x0) >= 10:
-        probs_10_to_100.append(p)
+    if p == 'ARGLINB':
+        pass
+    else:
+        prob = pycutest.import_problem(p)
+        print('prob: ', prob)
+        x0 = prob.x0
+        # only want <= 100.
+        if 100 >= len(x0) >= 10:
+            print(len(x0))
+            probs_10_to_100.append(p)
+
 print('probs under 100: ')
 print(probs_10_to_100)
 

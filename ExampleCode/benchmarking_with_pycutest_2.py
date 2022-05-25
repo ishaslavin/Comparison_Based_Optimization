@@ -46,7 +46,7 @@ print(probs_under_100)
 
 # new code (reads in the list of problems to use from pycutest_probs_to_use.txt.
 probs_under_100 = []
-f = open("pycutest_probs_to_use.txt", "r")
+f = open("ExampleCode/pycutest_probs_to_use.txt", "r")
 lines = f.readlines()
 for line in lines:
     print(line)
@@ -162,7 +162,7 @@ for problem in probs_under_100:
 #        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
 
         
-myFile = open('Results/Comparison_Opt_May_23.p', 'wb')
+myFile = open('Results/Comparison_Opt_May_24.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05
            }

@@ -4,10 +4,9 @@ from Algorithms.utils import random_sampling_directions, multiple_comparisons_or
 
 
 class STPOptimizer(BaseOptimizer):
-    def __init__(self, oracle, query_budget, x0, step_size,
-                 direction_vector_type, function=None):
+    def __init__(self, oracle, query_budget, x0, step_size, function=None):
         super().__init__(oracle, query_budget, x0, function)
-        self.direction_vector_type = direction_vector_type
+        self.direction_vector_type = 1  # To Do: Allow for different sampling distributions
         self.step_size = step_size
         self.list_of_sk = []
         self.x_vals = [x0]

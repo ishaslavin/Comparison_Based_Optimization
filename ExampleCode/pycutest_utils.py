@@ -32,16 +32,13 @@ def run_STP_pycutest(problem, x0, query_budget, target_func_value):
     # STP.
     print('RUNNING ALGORITHM STP....')
     p = problem
-    direction_vector_type = 2  # uniform from sphere.
     # step_size is the a_k parameter.
     step_size = 0.1  # step-size.
-    n = len(x0)  # problem dimension.
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
     '''
     oracle_stp = Oracle_pycutest(p.obj)  # comparison oracle.
-    stp = STPOptimizer(oracle_stp, query_budget, x0, step_size,
-                       direction_vector_type, function=p.obj)
+    stp = STPOptimizer(oracle_stp, query_budget, x0, step_size, function=p.obj)
 
     # step
     termination = False
