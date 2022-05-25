@@ -137,11 +137,14 @@ for problem in probs_under_100:
         # CMA.
         print('invoking CMA in a loop....')
         alg_num_cma = 3
-        cma_f_vals, cma_function_evals = run_CMA_pycutest(p_invoke_,
-                                                          copy.copy(x0),
-                                                          function_budget_,
-                                                          target_fun_val)
-        EVALS[alg_num_cma][prob_number][i] = cma_function_evals
+        try:
+            cma_f_vals, cma_function_evals = run_CMA_pycutest(p_invoke_,
+                                                              copy.copy(x0),
+                                                              function_budget_,
+                                                              target_fun_val)
+            EVALS[alg_num_cma][prob_number][i] = cma_function_evals
+        except:
+            EVALS[alg_num_cma][prob_number][i] = function_budget
         '''
         min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
         CMA_err_list[i].append(min5)
@@ -165,7 +168,7 @@ for problem in probs_under_100:
 
     prob_number +=1
         
-myFile = open('Results/Comparison_Opt_May_25_3.p', 'wb')
+myFile = open('Results/Comparison_Opt_May_25_4.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05,
            "function_budget": function_budget
