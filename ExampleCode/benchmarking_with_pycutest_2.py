@@ -62,7 +62,7 @@ print('\n')
 #
 # ==========================
 
-num_trials = 2
+num_trials = 10
 num_algs = 4  # Will be tricky to run SCOBO on workstation.
 num_problems = len(probs_under_100)
 
@@ -97,7 +97,7 @@ for problem in probs_under_100:
     ## CHECK where oracle should be instantiated and called
     x0 = p_invoke_.x0
     print('dimension of problem: ', len(x0))
-    function_budget_ = int(5e5)  # should make this bigger?
+    function_budget_ = int(1e5)  # should make this bigger?
     target_fun_val = 0.05*p_invoke_.obj(x0)
     for i in range(num_trials): 
         # =========================== STP ==================================== #
@@ -144,7 +144,7 @@ for problem in probs_under_100:
                                                               target_fun_val)
             EVALS[alg_num_cma][prob_number][i] = cma_function_evals
         except:
-            EVALS[alg_num_cma][prob_number][i] = function_budget
+            EVALS[alg_num_cma][prob_number][i] = function_budget_
         '''
         min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
         CMA_err_list[i].append(min5)
