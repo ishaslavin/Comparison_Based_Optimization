@@ -18,7 +18,6 @@ from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest
 from ExampleCode.pycutest_utils import run_CMA_pycutest, run_signOPT_pycutest
 from ExampleCode.pycutest_utils import ConstructProbWithGrad  # ,run_SCOBO_pycutest
 
-import scipy.optimize as sciopt
 # ==========================
 # 
 # Identify the relevant problems. Currently, we restrict to unconstrained 
@@ -97,7 +96,7 @@ for problem in probs_under_100:
     ## CHECK where oracle should be instantiated and called
     x0 = p_invoke_.x0
     print('dimension of problem: ', len(x0))
-    function_budget_ = int(1e5)  # should make this bigger?
+    function_budget_ = int(1e4)  # should make this bigger?
     target_fun_val = 0.05*p_invoke_.obj(x0)
     for i in range(num_trials): 
         # =========================== STP ==================================== #
@@ -166,12 +165,12 @@ for problem in probs_under_100:
 #                                                                target_fun_val)
 #        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
 
-    prob_number +=1
-        
-myFile = open('Results/Comparison_Opt_May_25_4.p', 'wb')
+    prob_number += 1
+
+myFile = open('Results/Comparison_Opt_June_1_2.p', 'wb')
 results = {"Evals": EVALS,
            "target_function_param": 0.05,
-           "function_budget": function_budget
+           "function_budget": function_budget_
            }
 pickle.dump(results, myFile)
 myFile.close()
