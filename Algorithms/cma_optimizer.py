@@ -3,10 +3,10 @@
 """
 Created on Mon Sep 20 08:30:57 2021
 
-@author: danielmckenzie
+@author: danielmckenzie and isha slavin.
+Based on the implementation described in "Tutorial CMA-ES: evolution strategies and 
+covariance matrix adaptation." by Hansen and Auger.
 """
-
-# look at code on GitHub -- figure out where this code is at.
 
 import numpy as np
 from Algorithms.base import BaseOptimizer
