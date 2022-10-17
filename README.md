@@ -5,10 +5,9 @@ In the CBO paradigm, access to the objective function f(x) is extremely limited.
 
 This project is licensed under the terms of the MIT license. If you find this code useful, please cite our work:
 
-@article{slavin2022adapting,
-  title={Adapting Zeroth Order Algorithms for Comparison-Based Optimization},
-  author={Slavin, Isha and McKenzie, Daniel},
-  journal={arXiv preprint arXiv:2210.05824},
-  year={2022}
-}
+	@article{slavin2022adapting,
+  	title={Adapting Zeroth Order Algorithms for Comparison-Based Optimization},
+  	author={Slavin, Isha and McKenzie, Daniel},
+  	journal={arXiv preprint arXiv:2210.05824},
+  	year={2022}}
 
