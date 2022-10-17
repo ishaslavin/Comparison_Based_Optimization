@@ -44,19 +44,6 @@ class MaxK(object):
         f_no_noise = np.dot(x[idx2], x[idx2]) / 2
         return f_no_noise + self.noiseamp * self.rng.randn()
 
-
-# Week #2 - TASK #2.
-# __________________
-# a bit unsure about my code for the non-sparse Quadric function.
-# i don't take in the parameter s as that defines my function's sparcity but I don't want it to be sparse.
-# noiseamp is the amplitude of noise. I think I should still take this, and multiply it to self.rng.randn().
-# then I still add it to f_no_noise as it accounts for noise.
-# so I guess the only difference is I don't multiply x[0:self.s] with x[0:self.s], I multiply all of x with all of x.
-
-### DM: Looks correct to me! Minor note: I recently realized I was using the 
-### term "quadric" incorrectly. It refers to the graph of a quadratic function,
-### but the function itself is a quadratic. I've made the change below.
-
 class NonSparseQuadratic(object):
     """An implementation of the sparse quadric function."""
 

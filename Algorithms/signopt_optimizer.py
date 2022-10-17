@@ -4,8 +4,8 @@
 Created on Thu Jul 22 11:19:28 2021
 
 @author: danielmckenzie and ishaslavin
-
-Testing implementing SignOPT as a class.
+Implementation of SignOPT algorithm, as described in "Sign-OPT: A Query Efficient
+ Hard-Label Adversarial Attack" by Minhao Cheng et al
 """
 
 from Algorithms.base import BaseOptimizer
@@ -33,8 +33,6 @@ class SignOPT(BaseOptimizer):
     def signOPT_grad_estimate(self, Z, x_in):
         """
         Estimate the gradient from comparison oracle queries.
-        See Sign-OPT: A Query Efficient Hard-Label Adversarial Attack"
-        by Minhao Cheng et al
         """
         
         g_hat = np.zeros(self.n)

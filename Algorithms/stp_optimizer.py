@@ -1,3 +1,8 @@
+"""
+Implementation of the STP algorithm, as described in "Stochastic three points method for
+unconstrained smooth minimization." by Bergou et al
+"""
+
 import numpy as np
 from Algorithms.base import BaseOptimizer
 from Algorithms.utils import random_sampling_directions, multiple_comparisons_oracle_2

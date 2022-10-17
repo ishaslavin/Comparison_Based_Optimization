@@ -1,8 +1,7 @@
 """
-Week 6 tasks - Problem # 3.
+Implementation of the SCOBO algorithm, as described in "A one-bit, comparison-based, gradient 
+estimator" by Cai, McKenzie, Yin and Zhang.
 """
-# class implementation of SCOBO algorithm.
-# reference: Jupyter Notebook (more vanilla implementation - i.e. not tailored to MuJoCo).
 
 from Algorithms.base import BaseOptimizer
 import numpy as np
@@ -75,8 +74,6 @@ class SCOBOoptimizer(BaseOptimizer):
         g_hat = self.Solve1BitCS(y)
         return g_hat
 
-    # (i) will be the iteration.
-    # will input it when I create an instance of this class and then call the step function for the # of iterations.
     def step(self):
         g_hat = self.GradientEstimator(self.x)
         self.queries += self.m

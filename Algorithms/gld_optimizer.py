@@ -1,6 +1,6 @@
 """
-Isha Slavin.
-Week 3 - TASK #1.
+Implements the Gradient-Less Descent with Binary Search Algorithm using a Comparison Oracle.
+# source: https://arxiv.org/pdf/1911.06317.pdf.
 """
 
 from Algorithms.base import BaseOptimizer
@@ -13,10 +13,6 @@ from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 
 from Algorithms.utils import random_sampling_directions, multiple_comparisons_oracle_2
-
-# this class implements the Gradient-Less Descent with Binary Search Algorithm using a Comparison Oracle.
-# source: https://arxiv.org/pdf/1911.06317.pdf.
-
 
 class GLDOptimizer(BaseOptimizer):
     """
