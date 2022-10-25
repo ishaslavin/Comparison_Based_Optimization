@@ -16,7 +16,7 @@ from scipy.linalg import sqrtm
 
 class CMA(BaseOptimizer):
     """
-    Simple version of CMA
+    Simple version of CMA.
     """
 
     def __init__(self, oracle, query_budget, x0, lam, mu, sigma, function=None):
@@ -42,6 +42,9 @@ class CMA(BaseOptimizer):
         self.h_sigma = 0.5
         self.c1 = 1 / self.n
 
+    """
+    Step function - increment.
+    """
     def step(self):
         # ---------
         # making sure f(x0) is outputted as first function evaluation.
@@ -53,34 +56,23 @@ class CMA(BaseOptimizer):
         self.number_steps += 1
 
         # The following code samples self.lam vectors from a normal dist with
-        # mean self.m and covariance self.sigma^2 * self.N
-
+        # mean self.m and covariance self.sigma^2 * self.N.
         Yg = np.random.multivariate_normal(np.zeros(self.n), self.C, self.lam)
         Xg = self.x + self.sigma * Yg
-        # print(Xg.shape)
-        # for i in range(self.mu):
-        #     print(self.function(Xg[i,:]))
-        # print('\n')
+
         # The next line sorts according to function values
         Sorted_Xg, num_queries = BubbleSort(Xg, self.oracle)
         self.queries += num_queries
         Sorted_Yg = (Sorted_Xg - self.x) / self.sigma
         # print(Sorted_Yg.shape)
 
-        # In the next line, we use weights w_i = 1/mu for all i
+        # In the next line, we use weights w_i = 1/mu for all i.
         y_w = np.sum(Sorted_Yg[0:self.mu, :], axis=0) / self.mu
-        # print(y_w)
 
-        # Update mean
+        # Update mean.
         self.x += self.sigma * y_w
 
-        # Update step size
-        '''
-        try:
-            C_half_inverse = np.linalg.matrix_power(sqrtm(self.C), -1)
-        except np.linalg.LinAlgError:
-            C_half_inverse = np.linalg.matrix_power(sqrtm(self.C), 1)
-        '''
+        # Update step size.
         C_half_inverse = np.linalg.matrix_power(sqrtm(self.C) + 0.0001*np.eye(self.C.shape[0]), -1)
         self.p_sigma = (1 - self.c_sigma) * self.p_sigma + np.sqrt(self.c_sigma *
                                                                    (2 - self.c_sigma) * self.mu_eff) * np.dot(
@@ -89,7 +81,7 @@ class CMA(BaseOptimizer):
                                                               (np.sqrt(self.n) * (1 - 1 / (4 * self.n) + 1 / (
                                                                           21 * self.n ** 2))) - 1))
 
-        # Update covariance matrix
+        # Update covariance matrix.
         self.p_c = (1 - self.c_c) * self.p_c + self.h_sigma * np.sqrt(self.c_c * (2 -
                                                                                   self.c_c) * self.mu_eff) * y_w
         term2 = self.c1 * np.outer(self.p_c, self.p_c)
@@ -104,4 +96,3 @@ class CMA(BaseOptimizer):
             return self.x, self.f_vals, 'B', self.queries
         # return solution, list of all function values, termination (which will be False here).
         return self.x, self.f_vals, False, self.queries
-        # return tempval

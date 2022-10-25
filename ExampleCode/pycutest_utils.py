@@ -11,9 +11,9 @@ Convenient functions for calling optimizers when working with pycutest.
 from Algorithms.stp_optimizer import STPOptimizer
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.signopt_optimizer import SignOPT
-# from Algorithms.scobo_optimizer import SCOBOoptimizer
+from Algorithms.scobo_optimizer import SCOBOoptimizer
 from Algorithms.cma_optimizer import CMA
-from oracle import Oracle_pycutest
+from ExampleCode.oracle import Oracle_pycutest
 
 
 def ConstructProbWithGrad(prob):
@@ -67,7 +67,7 @@ def run_GLD_pycutest(problem, x0, query_budget, target_func_value):
     # step.
     termination = False
     while termination is False:
-        solution, func_value, termination = gld.step()
+        solution, func_value, termination, queries = gld.step()
         if func_value[-1] <= target_func_value:
             termination = True
 
@@ -107,7 +107,7 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
     n = len(x0)  # problem dimension.
     step_size = 0.01
     s_exact = 0.1 * n
-    m_scobo = 4 * s_exact
+    m_scobo = int(4 * s_exact)
     r = 0.1
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
@@ -123,7 +123,7 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
         if func_value[-1] <= target_func_value:
             termination = True
 
-    return scobo.f_vals, scobo.queries
+    return scobo.function_vals, scobo.queries
 
 
 def run_CMA_pycutest(problem, x0, query_budget, target_func_value):

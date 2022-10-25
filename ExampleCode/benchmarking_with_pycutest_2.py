@@ -1,176 +1,154 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 25 13:32:45 2022
-
-@author: danielmckenzie
-
-Working on doing performance profiles with Pycutest.
-"""
-
 from __future__ import print_function
-import numpy as np
 import copy
-import pickle
 import pycutest
-from ExampleCode.oracle import Oracle_pycutest
-from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest
-from ExampleCode.pycutest_utils import run_CMA_pycutest, run_signOPT_pycutest
-from ExampleCode.pycutest_utils import ConstructProbWithGrad  # ,run_SCOBO_pycutest
+from matplotlib import pyplot as plt
+from pycutest_utils import run_STP_pycutest, run_GLD_pycutest, run_CMA_pycutest, run_SCOBO_pycutest, \
+    run_signOPT_pycutest
 
-# ==========================
-# 
-# Identify the relevant problems. Currently, we restrict to unconstrained 
-# problems of dimension less than 100
-#
-# ==========================
-
-print('/n Finding all problems of size less than 100 /n')
-
+# Find unconstrained, variable-dimension problems.
 probs = pycutest.find_problems(constraints='U', userN=True)
+print('number of problems: ', len(probs))
+print(sorted(probs))
 
-# old code (checked dimension of each PyCutest problem).
-'''
-probs_under_100 = []
-for p in probs:
-    prob = pycutest.import_problem(p)
-    print('prob: ', prob)
-    x0 = prob.x0
-    # only want <= 100.
-    if 100 >= len(x0) >= 10:
-        probs_under_100.append(p)
-print('probs under 100: ')
-print(probs_under_100)
-'''
+for problem in probs:
+    print(problem + ': ' + str(pycutest.problem_properties(problem)))
+# functions to run.
 
-# new code (reads in the list of problems to use from pycutest_probs_to_use.txt.
-probs_under_100 = []
-f = open("ExampleCode/pycutest_probs_to_use.txt", "r")
-lines = f.readlines()
-for line in lines:
-    print(line)
-    probs_under_100.append(line.rstrip())
-print('\n')
-print('problems with dimension from 10 to 100: ')
-print(probs_under_100)
-print('\n')
 
-# ==========================
-# 
-# Initialize arrays to contain results. 
-#
-# ==========================
+# STP.
+def run_STP_pycutest_newfile(problem, x0, function_budget):
+    """ STP. """
+    print('RUNNING ALGORITHM STP....')
+    p = problem
+    # direction_vector_type = 0  # original.
+    direction_vector_type = 1  # gaussian.
+    # direction_vector_type = 2  # uniform from sphere.
+    # direction_vector_type = 3  # rademacher.
+    target_fun_val = 0.01 * p.obj(x0)
+    # STP instance.
+    stp_f_vals, stp_function_evals = run_STP_pycutest(p,
+                                                      copy.copy(x0),
+                                                      function_budget,
+                                                      target_fun_val)
+    return stp_f_vals
 
-num_trials = 10
-num_algs = 4  # Will be tricky to run SCOBO on workstation.
-num_problems = len(probs_under_100)
 
-EVALS = np.zeros((num_algs, num_problems, num_trials))
+# GLD.
+def run_GLD_pycutest_newfile(problem, x0, function_budget):
+    """ GLD. """
+    print('RUNNING ALGORITHM GLD....')
+    p = problem
+    target_fun_val = 0.01 * p.obj(x0)
+    gld_f_vals, gld_function_evals = run_GLD_pycutest(p,
+                                                      copy.copy(x0),
+                                                      function_budget,
+                                                      target_fun_val)
+    return gld_f_vals
 
-# target_func_value.
-"""
-Daniel will complete this part.
-We need a list, something like alg_target_vals = [stp_targ, gld_targ, signopt_targ, scobo_targ, cma_targ].
-Each of the values in the list will have a target value corresponding to that algorithm.
-Then, in the code below, after each "alg_num", we say:
-    target_func_value = alg_target_vals[alg_num_stp], 
-for ex.
-"""
-#==========================
-# 
-# Run Experiment
-#
-#==========================
 
-prob_number = 0
-for problem in probs_under_100:
-    #================== Work out true minimum using scipy.optimize
-    options = {"maxiter": int(1e4)}
-    ProbWithGrad = ConstructProbWithGrad(problem)
-    # res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
-    # target_fun_val = 1.001*res.fun # give a little leeway
-    # TODO: Set max number of iters to 500*len(x0).
-    #  sciopt.minimize(problem)
+# SignOPT.
+def run_signOPT_pycutest_newfile(problem, x0, function_budget):
+    """ SignOPT. """
+    print('RUNNING ALGORITHM SIGNOPT....')
+    p = problem
+    target_fun_val = 0.01 * p.obj(x0)
+    signopt_f_vals, signopt_function_evals = run_signOPT_pycutest(p,
+                                                                  copy.copy(x0),
+                                                                  function_budget,
+                                                                  target_fun_val)
+    return signopt_f_vals
+
+
+# SCOBO.
+def run_SCOBO_pycutest_newfile(problem, x0, function_budget):
+    # SCOBO.
+    print('RUNNING ALGORITHM SCOBO....')
+    p = problem
+    # SCOBO instance.
+    target_fun_val = 0.01 * p.obj(x0)
+    scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(p,
+                                                            copy.copy(x0),
+                                                            function_budget,
+                                                            target_fun_val)
+    return scobo_f_vals
+
+
+# CMA.
+def run_CMA_pycutest_newfile(problem, x0, function_budget):
+    """ CMA. """
+    print('RUNNING ALGORITHM CMA....')
+    p = problem
+    # CMA instance.
+    target_fun_val = 0.01 * p.obj(x0)
+    cma_f_vals, cma_function_evals = run_CMA_pycutest(p,
+                                                      copy.copy(x0),
+                                                      function_budget,
+                                                      target_fun_val)
+    return cma_f_vals
+
+
+# function evaluations (to be plotted).
+stp_func_list = []
+gld_func_list = []
+signOPT_func_list = []
+scobo_func_list = []
+cma_func_list = []
+three_problems = ['VAREIGVL', 'LUKSAN17LS', 'CHNRSNBM']
+
+# for problem in problems list (you designate this yourself)....
+for problem in three_problems:
     p_invoke_ = pycutest.import_problem(problem)
-    oracle = Oracle_pycutest(p_invoke_)
-    ## CHECK where oracle should be instantiated and called
-    x0 = p_invoke_.x0
-    print('dimension of problem: ', len(x0))
-    function_budget_ = int(1e4)  # should make this bigger?
-    target_fun_val = 0.05*p_invoke_.obj(x0)
-    for i in range(num_trials): 
-        # =========================== STP ==================================== #
-        print('invoking STP in a loop....')
-        alg_num_stp = 0
-        stp_f_vals, stp_function_evals = run_STP_pycutest(p_invoke_,
-                                                          copy.copy(x0),
-                                                          function_budget_,
-                                                          target_fun_val)
-        EVALS[alg_num_stp][prob_number][i] = stp_function_evals
-        print('\n')
-        # TODO: Finish rewriting remaining invocations.
-        # GLD.
-        print('invoking GLD in a loop....')
-        alg_num_gld = 1
-        gld_f_vals, gld_function_evals = run_GLD_pycutest(p_invoke_,
-                                                          copy.copy(x0),
-                                                          function_budget_,
-                                                          target_fun_val)
-        EVALS[alg_num_gld][prob_number][i] = gld_function_evals
-        '''
-        min2 = run_GLD_pycutest(p_invoke_, copy.copy(x0), function_budget_)
-        GLD_err_list[i].append(min2)
-        '''
-        print('\n')
-        # SignOPT.
-        print('invoking SignOPT in a loop....')
-        alg_num_signopt = 2
-        signopt_f_vals, signopt_function_evals = run_signOPT_pycutest(p_invoke_,
-                                                                      copy.copy(x0),
-                                                                      function_budget_,
-                                                                      target_fun_val)
-        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
-        print('SignOPT function_evals ' + str(signopt_function_evals) + '\n')
+    x0_invoke_ = p_invoke_.x0
+    print('dimension of problem: ', len(x0_invoke_))
+    function_budget_ = 1000
+    # STP.
+    print('invoking STP in a loop....')
+    stp_func_list = run_STP_pycutest_newfile(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+    print('\n')
+    # GLD.
+    print('invoking GLD in a loop....')
+    gld_func_list = run_GLD_pycutest_newfile(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+    print('\n')
+    # SignOPT.
+    print('invoking SignOPT in a loop....')
+    signOPT_func_list = run_signOPT_pycutest_newfile(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+    print('\n')
+    # SCOBO.
+    print('invoking SCOBO in a loop....')
+    scobo_func_list = run_SCOBO_pycutest_newfile(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+    print('\n')
+    # CMA.
+    print('invoking CMA in a loop....')
+    cma_func_list = run_CMA_pycutest_newfile(p_invoke_, copy.copy(x0_invoke_), function_budget_)
+    print('\n')
 
-        print('\n')
-        # CMA.
-        print('invoking CMA in a loop....')
-        alg_num_cma = 3
-        try:
-            cma_f_vals, cma_function_evals = run_CMA_pycutest(p_invoke_,
-                                                              copy.copy(x0),
-                                                              function_budget_,
-                                                              target_fun_val)
-            EVALS[alg_num_cma][prob_number][i] = cma_function_evals
-        except:
-            EVALS[alg_num_cma][prob_number][i] = function_budget_
-        '''
-        min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-        CMA_err_list[i].append(min5)
-        '''
-        print('\n')
-        
-        #        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
-#        '''
-#        min3 = run_signOPT_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
-#        SignOPT_err_list[i].append(min3)
-#        '''
-#        print('\n')
-#        # SCOBO.
-#        print('invoking SCOBO in a loop....')
-#        alg_num_scobo = 4
-#        scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(oracle,
-#                                                                copy.copy(x0),
-#                                                                function_budget_,
-#                                                                target_fun_val)
-#        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
+    # plot.
+    plt.figure()
+    # plots represent each algorithm's performance.
 
-    prob_number += 1
+    """ New addition. """
+    x = range(0, 1002, 2)
+    x_2 = range(0, 1000, 2)
+    x_3 = range(0, 1010, 10)
+    scobo_len = int(1000 / (len(scobo_func_list)-1))
+    print('SCOBO LENGTH: ', scobo_len)
+    x_4 = range(0, 1000+scobo_len, scobo_len)
+    x_5 = range(0, 980, int(1000 / len(cma_func_list)))
+    print('stp: ', len(stp_func_list))
+    print('gld: ', len(gld_func_list))
+    print('signOPT: ', len(signOPT_func_list))
+    print('scobo: ', len(scobo_func_list))
+    print('cma: ', len(cma_func_list))
 
-myFile = open('Results/Comparison_Opt_June_1_2.p', 'wb')
-results = {"Evals": EVALS,
-           "target_function_param": 0.05,
-           "function_budget": function_budget_
-           }
-pickle.dump(results, myFile)
-myFile.close()
+    plt.plot(x, stp_func_list, color='orange', label='STP')
+    plt.plot(x_2, gld_func_list, color='blue', label='GLD')
+    plt.plot(x_3, signOPT_func_list, color='black', label='SignOPT')
+    plt.plot(x_4, scobo_func_list, color='purple', label='SCOBO')
+    plt.plot(x_5, cma_func_list, color='green', label='CMA')
+    # name axes & show graph.
+    plt.xlabel('number of oracle queries')
+    plt.ylabel('function values')
+    plt.legend()
+    plt.title('problem: ' + str(problem))
+    plt.show()
+    plt.close()

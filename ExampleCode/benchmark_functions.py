@@ -1,20 +1,15 @@
 """
-This module contains the following:
-- Sparse Quadric
-- Max-k-sum-squared
+This module contains the following functions:
+- Sparse Quadric.
+- Max-k-sum-squared.
+- Non-Sparse Quadric.
 """
 
 import numpy as np
-import sys
-
-
-# TODO:
-# Code up a non-sparse quadric test function.
-# return np.dot(x,x)
 
 
 class SparseQuadratic(object):
-    """An implementation of the sparse quadric function."""
+    """ An implementation of the sparse quadric function. """
 
     def __init__(self, n, s, noiseamp):
         self.noiseamp = noiseamp / np.sqrt(n)
@@ -30,7 +25,7 @@ class SparseQuadratic(object):
 
 
 class MaxK(object):
-    """An implementation of the max-k-squared-sum function."""
+    """ An implementation of the max-k-squared-sum function. """
 
     def __init__(self, n, s, noiseamp):
         self.noiseamp = noiseamp / np.sqrt(n)
@@ -44,8 +39,9 @@ class MaxK(object):
         f_no_noise = np.dot(x[idx2], x[idx2]) / 2
         return f_no_noise + self.noiseamp * self.rng.randn()
 
+
 class NonSparseQuadratic(object):
-    """An implementation of the sparse quadric function."""
+    """ An implementation of the sparse quadric function. """
 
     def __init__(self, n, noiseamp):
         self.noiseamp = noiseamp / np.sqrt(n)
@@ -54,9 +50,4 @@ class NonSparseQuadratic(object):
 
     def __call__(self, x):
         f_no_noise = np.dot(x, x)
-        '''
-        print('f_no_noise: ', f_no_noise)
         return f_no_noise + self.noiseamp * self.rng.randn()
-        '''
-        return f_no_noise + self.noiseamp * self.rng.randn()
-
