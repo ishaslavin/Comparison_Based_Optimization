@@ -1,4 +1,5 @@
 # invokes the STP algorithm class.
+
 from Algorithms.stp_optimizer import STPOptimizer
 from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
@@ -20,29 +21,32 @@ x0 = np.random.randn(n)
 
 # Define the comparison oracle.
 oracle = Oracle(obj_func_1)
+target_func_value = 0
 
 # stp instance.
-stp = STPOptimizer(oracle, query_budget, x0, m, step_size,
-                   direction_vector_type, function=obj_func_1)
-# step.
+stp = STPOptimizer(oracle, query_budget, x0, step_size, function=obj_func_1)
+
+# step
 termination = False
-prev_evals = 0
 while termination is False:
-    # optimization step.
     solution, func_value, termination, queries = stp.step()
-    # print('step')
-    print('current value: ', func_value[-1])
+    if func_value[-1] <= target_func_value:
+        termination = True
+
+print('f vals: ', stp.f_vals)
+print('queries: ', stp.queries)
 print('solution: ', solution)
+
 # plot the decreasing function.
-plt.plot(func_value)
+plt.plot(stp.f_vals)
 plt.title("plot")
 plt.show()
 plt.close()
 # log x-axis.
-plt.semilogy(func_value)
+plt.semilogy(stp.f_vals)
 plt.title("log plot")
 plt.show()
 plt.close()
 # ---------
 print('\n')
-print('number of function vals: ', len(func_value))
+print('number of function vals: ', len(stp.f_vals))

@@ -58,7 +58,8 @@ class SCOBOoptimizer(BaseOptimizer):
         return x_hat
 
     def GradientEstimator(self, x_in):
-        '''This function estimates the gradient vector from m Comparison
+        """
+        This function estimates the gradient vector from m Comparison
         oracle queries, using 1 bit compressed sensing and Gurobi
         ================ INPUTS ======================
         Z ......... An m-by-d matrix with rows z_i uniformly sampled from unit sphere
@@ -67,7 +68,8 @@ class SCOBOoptimizer(BaseOptimizer):
         ================ OUTPUTS ======================
         g_hat ........ approximation to g/||g||
         23rd May 2020
-        '''
+        """
+
         y = np.zeros(self.m)
         for i in range(0, self.m):
             y[i] = self.oracle(x_in, x_in + self.r * self.Z[i, :])
@@ -83,14 +85,12 @@ class SCOBOoptimizer(BaseOptimizer):
         if self.reachedFunctionBudget(self.query_budget, self.queries):
             # if budget is reached terminate.
             if self._function is not None:
-                # tempval = self.objfunc(self.x)
                 self.function_vals.append(tempval)
                 return self.x, self.function_vals, 'B', self.queries
             else:
                 return None, None, 'B', None
         else:
             if self._function is not None:
-                # tempval = self.objfunc(self.x)
                 self.function_vals.append(tempval)
                 return self.x, self.function_vals, False, self.queries
             else:

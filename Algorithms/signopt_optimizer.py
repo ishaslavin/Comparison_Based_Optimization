@@ -24,17 +24,14 @@ class SignOPT(BaseOptimizer):
         self._function = function
 
         if self._function is not None:
-        # In development, we'll have access to both the oracle and the function.
-        # In practice this will not be the case.
             self.f_vals = [self._function(x0)]
-
         self.x_vals = [x0]
         
     def signOPT_grad_estimate(self, Z, x_in):
         """
         Estimate the gradient from comparison oracle queries.
         """
-        
+
         g_hat = np.zeros(self.n)
         for i in range(self.m):
             comparison = self.oracle(x_in, x_in + self.r*Z[i,:])
@@ -43,7 +40,7 @@ class SignOPT(BaseOptimizer):
             self.queries += 1
             g_hat += comparison*Z[i,:]
         
-        g_hat = g_hat/ self.m
+        g_hat = g_hat / self.m
         if self.debug_status:
             print(['Gradient is ', g_hat])
         

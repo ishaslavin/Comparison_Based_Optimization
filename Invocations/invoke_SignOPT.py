@@ -1,20 +1,12 @@
 # invokes the SignOPT algorithm class.
 
-# !/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jul 22 11:51:58 2021
-
-@author: danielmckenzie an ishaslavin
-"""
-
 from Algorithms.signopt_optimizer import SignOPT
 import numpy as np
 from ExampleCode.oracle import Oracle
 import matplotlib.pyplot as plt
 from ExampleCode.benchmark_functions import SparseQuadratic, MaxK
 
-# Defining the function
+# Defining the function.
 n_def = 2000
 s_exact = 200
 noise_amp = 0.001
@@ -30,7 +22,6 @@ r = 0.1
 
 # Define the comparison oracle.
 oracle = Oracle(obj_func_1)
-
 Opt = SignOPT(oracle, query_budget, x0, m, step_size, r, debug=False,
               function=obj_func_1)
 # step.
@@ -52,22 +43,6 @@ plt.semilogy(func_value)
 plt.title("log plot")
 plt.show()
 plt.close()
-
+# ---------
 print('number of values: ', len(func_value))
 print('number of oracle queries: ', queries)
-# ---------
-
-
-
-
-'''
-for i in range(max_iters - 1):
-    print(i)
-    Opt.step()
-
-plt.semilogy(Opt.f_vals)
-plt.show()
-
-print('number of function vals: ', len(Opt.f_vals))
-'''
-

@@ -1,5 +1,6 @@
 """
-ALGORITHMS.
+Isha Slavin.
+Benchmarking ALGORITHMS against each other.
 """
 # STP.
 # GLD.
@@ -7,49 +8,38 @@ ALGORITHMS.
 # SCOBO.
 # CMA.
 
-"""
-Imports.
-"""
 import random
 import numpy as np
 from matplotlib import pyplot as plt
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK, NonSparseQuadratic
-from ExampleCode.oracle import Oracle
+from ExampleCode.benchmark_functions import SparseQuadratic, MaxK, NonSparseQuadratic
+from ExampleCode.oracle import Oracle, NoisyOracle
 
 ''' STP. '''
 from Algorithms.stp_optimizer import STPOptimizer
-
 ''' GLD. '''
 from Algorithms.gld_optimizer import GLDOptimizer
-
 ''' SignOPT. '''
-from Algorithms.SignOPT2 import SignOPT
-
+from Algorithms.signopt_optimizer import SignOPT
 ''' SCOBO. '''
 from Algorithms.scobo_optimizer import SCOBOoptimizer
-
 ''' CMA. '''
-from Algorithms.CMA_2 import CMA
-# import copy.
+from Algorithms.cma_optimizer import CMA
 import copy
-# import sys.
 import sys
-
 sys.path.append('..')
 
 # initialize.
-n = 200  # problem dimension.
+n = 50  # problem dimension.
 s_exact = 20  # true sparsity.
 noiseamp = 0.001  # noise amplitude.
-function_budget = 500
 # objective functions.
 obj_func_1 = SparseQuadratic(n, s_exact, noiseamp)
 obj_func_2 = MaxK(n, s_exact, noiseamp)
 obj_func_3 = NonSparseQuadratic(n, noiseamp)
 # decide which function we will benchmark on.
-objective_function_choice = obj_func_3
+objective_function_choice = obj_func_1
 # oracle.
-main_oracle = Oracle(objective_function_choice)
+main_oracle = NoisyOracle(objective_function_choice)
 oracle_1 = Oracle(obj_func_1)
 oracle_2 = Oracle(obj_func_2)
 oracle_3 = Oracle(obj_func_3)
@@ -62,229 +52,175 @@ cma_func_list = []
 # number of times we will run each alg and average over them.
 number_runs = 3
 # initial x0 to be used for each alg.
-'''
-X_0 = np.random.randn(n, number_runs)
-'''
+target_func_value = 0
 X_0 = np.random.randn(n)
+query_budget = 1000
+
 
 # call STP.
 def run_STP(number_of_runs):
     for number in range(number_of_runs):
-        '''
-        RUN STP.
-        '''
+        ''' RUN STP. '''
         print('sample invoke.')
         # create an instance of STPOptimizer.
         # direction_vector_type = 0  # original.
-        # direction_vector_type = 1  # gaussian.
+        direction_vector_type = 1  # gaussian.
         # direction_vector_type = 2  # uniform from sphere.
-        direction_vector_type = 3  # rademacher.
-        a_k = 0.5  # step-size.
-        # function_budget = 10000
-        # initial x_0.
+        # direction_vector_type = 3  # rademacher.
+        a_k = 0.01  # step-size.
         random.seed()
-        '''
-        x_0 = np.random.randn(n)
-        '''
-        ## DM Code suggestion
-        '''
-        x_0 = copy.copy(X_0[:, number])
-        '''
         x_0 = copy.copy(X_0)
         # stp instance.
-        stp1 = STPOptimizer(main_oracle, direction_vector_type, x_0, n, a_k, objective_function_choice, function_budget)
+        stp = STPOptimizer(main_oracle, query_budget, x_0, a_k, function=obj_func_1)
         # step.
         termination = False
-        # prev_evals = 0
+        stp_queries = []
         while termination is False:
-            # optimization step.
-            solution, func_value, termination = stp1.step()
-            # print('step')
-            print('current value: ', func_value[-1])
+            solution, func_value, termination, queries = stp.step()
+            stp_queries.append(queries)
+            if func_value[-1] <= target_func_value:
+                termination = True
         # plot the decreasing function.
-        plt.plot(func_value)
-        # plt.show()
+        plt.plot(stp.f_vals)
         # log x-axis.
-        plt.semilogy(func_value)
-        # plt.show()
+        plt.semilogy(stp.f_vals)
         # ---------
         print('\n')
-        print('number of function vals: ', len(func_value))
+        print('number of function vals: ', len(stp.f_vals))
         # cast func_value LIST to a NUMPY ARRAY.
-        func_value_arr = np.array(func_value)
+        func_value_arr = np.array(stp.f_vals)
         # append array of function values to STP list.
         stp_func_list.append(func_value_arr)
+        print('stp: ', len(func_value_arr))
+    return stp_queries
 
 
 # call GLD.
 def run_GLD(number_of_runs):
     for j in range(number_of_runs):
-        '''
-        RUN GLD.
-        '''
+        ''' RUN GLD. '''
         # ---------
         print('sample invoke.')
         random.seed()
-        '''
-        x_0_ = np.random.rand(n)
-        '''
-        '''
-        x_0_ = copy.copy(X_0[:, j])
-        '''
         x_0_ = copy.copy(X_0)
-        # print('shape of x_0_: ', len(x_0_))
         R_ = 10
         r_ = .01
         # GLDOptimizer instance.
-        gld1 = GLDOptimizer(main_oracle, objective_function_choice, x_0_, R_, r_, function_budget)
-        # gld1 = GLDOptimizer(obj_func_2, x_0_, R_, r_, max_function_evals)
-        # gld1 = GLDOptimizer(obj_func_1, x_0_, R_, r_, max_function_evals)
+        gld = GLDOptimizer(main_oracle, query_budget, x_0_, R_, r_, function=obj_func_1)
         # step.
-        termination_2 = False
-        prev_evals = 0
-        while termination_2 is False:
-            # optimization step.
-            solution_2, func_value_2, termination_2 = gld1.step()
-            # print('step')
-            print('current value: ', func_value_2[-1])
+        termination = False
+        gld_queries = []
+        while termination is False:
+            solution, func_value, termination, queries = gld.step()
+            gld_queries.append(queries)
+            if func_value[-1] <= target_func_value:
+                termination = True
         # print the solution.
         print('\n')
-        print('solution: ', solution_2)
         # plot the decreasing function.
-        plt.plot(func_value_2)
-        # plt.show()
+        plt.plot(gld.f_vals)
         # log x-axis.
-        plt.semilogy(func_value_2)
-        # plt.show()
+        plt.semilogy(gld.f_vals)
         # ---------
         print('\n')
-        print('number of function vals: ', len(func_value_2))
+        print('number of function vals: ', len(gld.f_vals))
         # cast func_value LIST to a NUMPY ARRAY.
-        func_value_2_arr = np.array(func_value_2)
+        func_value_2_arr = np.array(gld.f_vals)
         # append array of function values to STP list.
         gld_func_list.append(func_value_2_arr)
+        print('gld: ', len(func_value_2_arr))
+    return gld_queries
 
 
 # call SignOPT.
 def run_SignOPT(number_of_runs):
     for k in range(number_of_runs):
-        '''
-        RUN SignOPT.
-        '''
+        ''' RUN SignOPT. '''
         print('sample invoke.')
-        # function_budget_1 = int(1e5)
         m = 100
         random.seed()
-        '''
-        x0 = np.random.randn(n)
-        '''
-        '''
-        x0 = copy.copy(X_0[:, k])
-        '''
         x0 = copy.copy(X_0)
         step_size = 0.2
         r = 0.1
-        max_iters = int(function_budget/2)
-        # max_iters = int(500)
-        # from Algorithms.SignOPT2 import SignOPT
         # SignOPT instance.
-        Opt = SignOPT(main_oracle, function_budget, x0, m, step_size, r, debug=False, function=objective_function_choice)
-        for i in range(max_iters - 1):
-            print(i)
-            Opt.step()
-        plt.semilogy(Opt.f_vals)
-        # plt.show()
+        signopt = SignOPT(main_oracle, query_budget, x0, m, step_size, r, debug=False,
+                          function=obj_func_1)
+        # step.
+        termination = False
+        while termination is False:
+            solution, func_value, termination, queries = signopt.step()
+            if func_value[-1] <= target_func_value:
+                termination = True
+        plt.semilogy(signopt.f_vals)
         print('\n')
-        print('number of function vals: ', len(Opt.f_vals))
-        func_value_3_arr = np.array(Opt.f_vals)
+        print('number of function vals: ', len(signopt.f_vals))
+        func_value_3_arr = np.array(signopt.f_vals)
         signOPT_func_list.append(func_value_3_arr)
+        print('signOPT: ', len(func_value_3_arr))
 
-
-# figure out how to get SCOBO working. email Daniel that the installation isn't working?
 
 # call SCOBO.
 def run_SCOBO(number_of_runs):
     for m in range(number_of_runs):
-        '''
-        RUN SCOBO.
-        '''
+        ''' RUN SCOBO. '''
         print('sample invoke')
         step_size = 0.5
-        query_budget = int(1e5)
         random.seed()
-        '''
-        x0 = np.random.randn(n)
-        '''
-        '''
-        x0 = copy.copy(X_0[:, m])
-        '''
         x0 = copy.copy(X_0)
         r = 0.1
         m = 100
         s_ex = 20
-        max_iters = int(function_budget/2)
         # SCOBO instance.
-        Opt = SCOBOoptimizer(main_oracle, step_size, query_budget, x0, r, m, s_ex, objfunc=objective_function_choice)
-        for i in range(max_iters):
-            # print(i)
-            err = Opt.step()
-            print(err)
+        scobo = SCOBOoptimizer(main_oracle, step_size, query_budget, x0, r, m, s_ex, function=obj_func_1)
+        # step.
+        termination = False
+        while termination is False:
+            solution, func_value, termination, queries = scobo.step()
+            if func_value[-1] <= target_func_value:
+                termination = True
         print('\n')
-        print('number of function vals: ', len(Opt.function_vals))
-        func_value_4_arr = np.array(Opt.function_vals)
+        print('number of function vals: ', len(scobo.function_vals))
+        func_value_4_arr = np.array(scobo.function_vals)
         scobo_func_list.append(func_value_4_arr)
+        print('scobo: ', len(func_value_4_arr))
 
 
 # call CMA.
 def run_CMA(number_of_runs):
     for l in range(number_of_runs):
-        # write function evaluations into this list for each of the runs.
-        all_CMA_func_vals = []
-        '''
-        RUN CMA_ES.
-        '''
+        ''' RUN CMA_ES. '''
         print('sample invoke.')
-        query_budget = int(1e5)
-        m = 100
-        '''
-        x0 = 100 * np.random.randn(n)
-        '''
         random.seed()
-        '''
-        x0 = np.random.randn(n)
-        '''
-        '''
-        x0 = copy.copy(X_0[:, l])
-        '''
         x0 = copy.copy(X_0)
-        step_size = 0.2
         r = 0.1
-        max_iters = int(function_budget/2)
         lam = 10
         mu = 5
         sigma = 0.5
         # CMA_ES instance.
-        Opt = CMA(main_oracle, query_budget, x0, lam, mu, sigma, function=objective_function_choice)
-        for i in range(max_iters):
-            val = Opt.step()
-            print(str(i) + ': ' + str(val))
-            all_CMA_func_vals.append(val)
+        cma = CMA(main_oracle, query_budget, x0, lam, mu, sigma, function=obj_func_1)
+        # step.
+        termination = False
+        while termination is False:
+            solution, func_value, termination, queries = cma.step()
+            if func_value[-1] <= target_func_value:
+                termination = True
         print('\n')
-        print('number of function vals: ', len(all_CMA_func_vals))
-        func_value_5_arr = np.array(all_CMA_func_vals)
+        print('number of function vals: ', len(cma.f_vals))
+        func_value_5_arr = np.array(cma.f_vals)
         cma_func_list.append(func_value_5_arr)
+        print('cma: ', len(func_value_5_arr))
 
 
 # invoke.
 # STP:
 print('\n')
 print('STP....')
-run_STP(3)
+x_stp = run_STP(3)
 print(len(stp_func_list))
 # GLD:
 print('\n')
 print('GLD....')
-run_GLD(3)
+x_gld = run_GLD(3)
 print(len(gld_func_list))
 print('\n')
 print('*********')
@@ -335,13 +271,12 @@ std_dev_CMA = np.std(cma_func_list, axis=0)
 mean_CMA_list = mean_CMA.tolist()
 std_dev_CMA_list = std_dev_CMA.tolist()
 
-
 # axes.
-x = np.linspace(0, len(mean_STP_list) - 1, len(mean_STP_list))
-x_2 = np.linspace(0, len(mean_GLD_list) - 1, len(mean_GLD_list))
-x_3 = np.linspace(0, len(mean_SignOPT_list) - 1, len(mean_SignOPT_list))
-x_4 = np.linspace(0, len(mean_SCOBO_list) - 1, len(mean_SCOBO_list))
-x_5 = np.linspace(0, len(mean_CMA_list) - 1, len(mean_CMA_list))
+x = range(0, 1002, 2)
+x_2 = x_gld
+x_3 = range(0, 1100, 100)
+x_4 = range(0, 1100, 100)
+x_5 = range(0, 950, int(1000/len(cma_func_list[0])))
 y_1 = mean_STP_list
 y_2 = mean_GLD_list
 y_3 = mean_SignOPT_list
@@ -384,7 +319,6 @@ y_error_top_5 = np.add(mean_CMA, y_error_np_5)
 y_error_bottom_list_5 = y_error_bottom_5.tolist()
 y_error_top_list_5 = y_error_top_5.tolist()
 
-
 # create plot.
 plt.figure()
 
@@ -407,9 +341,3 @@ plt.ylabel('function values')
 plt.legend()
 plt.show()
 plt.close()
-
-
-
-
-
-

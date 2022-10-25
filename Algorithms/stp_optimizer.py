@@ -17,13 +17,10 @@ class STPOptimizer(BaseOptimizer):
         self.x_vals = [x0]
         
         if self._function is not None:
-        # In development, we'll have access to both the oracle and the function.
-        # In practice this will not be the case.
             self.f_vals = [self._function(x0)]
 
     def step(self):
         sampling_direction = random_sampling_directions(1, self.n, 'gaussian')
-        ## ToDo: Add support for other sampling directions.
         x_plus = self.x + self.step_size*sampling_direction
         x_minus = self.x - self.step_size*sampling_direction
   
