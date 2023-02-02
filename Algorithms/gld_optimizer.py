@@ -32,11 +32,8 @@ class GLDOptimizer(BaseOptimizer):
         self.K = K
 
     def step(self):
-        if self.queries == 0:
-            x_t = self.x
-            self.x_vals.append(x_t)
-        else:
-            x_t = self.x_vals[-1]
+        x_t = self.x
+        self.x_vals.append(x_t)
         # list of x_t's for this one step.
         v_list = [x_t]
         # n: dimension of x_t.
@@ -76,6 +73,7 @@ class GLDOptimizer(BaseOptimizer):
             argmin = v_list[0]
             x_t = argmin
             self.x_vals.append(x_t)
+            self.x = x_t
             self.f_vals.append(self._function(x_t))
         # now, let's check if the function budget is depleted.
         if self.reachedFunctionBudget(self.query_budget, self.queries):

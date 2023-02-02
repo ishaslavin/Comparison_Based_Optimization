@@ -7,7 +7,7 @@ Created on Mon Apr 25 13:43:51 2022
 
 Convenient functions for calling optimizers when working with pycutest.
 """
-
+import numpy as np
 from Algorithms.stp_optimizer import STPOptimizer
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.signopt_optimizer import SignOPT
@@ -28,7 +28,7 @@ def ConstructProbWithGrad(prob):
     return ProbWithGrad
 
 
-def run_STP_pycutest(problem, x0, query_budget, target_func_value):
+def run_STP_pycutest(problem, x0, query_budget, target_epsilon):
     # STP.
     print('RUNNING ALGORITHM STP....')
     p = problem
@@ -44,13 +44,15 @@ def run_STP_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = stp.step()
-        if func_value[-1] <= target_func_value:
+        _, grad = p.obj(stp.x, gradient=True) 
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm <= target_epsilon:
             termination = True
 
     return stp.f_vals, stp.queries
 
 
-def run_GLD_pycutest(problem, x0, query_budget, target_func_value):
+def run_GLD_pycutest(problem, x0, query_budget, target_epsilon):
     # GLD.
     print('RUNNING ALGORITHM GLD....')
     p = problem
@@ -68,13 +70,15 @@ def run_GLD_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = gld.step()
-        if func_value[-1] <= target_func_value:
+        _, grad = p.obj(gld.x, gradient=True)
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm <= target_epsilon:
             termination = True
 
     return gld.f_vals, gld.queries
 
 
-def run_signOPT_pycutest(problem, x0, query_budget, target_func_value):
+def run_signOPT_pycutest(problem, x0, query_budget, target_epsilon):
     # SignOPT.
     print('RUNNING ALGORITHM SIGNOPT....')
     p = problem
@@ -94,13 +98,15 @@ def run_signOPT_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = signopt.step()
-        if func_value[-1] <= target_func_value:
+        _, grad = p.obj(signopt.x, gradient=True)
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm <= target_epsilon:
             termination = True
 
     return signopt.f_vals, signopt.queries
 
 
-def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
+def run_SCOBO_pycutest(problem, x0, query_budget, target_epsilon):
     # SCOBO.
     print('RUNNING ALGORITHM SCOBO....')
     p = problem
@@ -120,13 +126,15 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = scobo.step()
-        if func_value[-1] <= target_func_value:
+        _, grad = p.obj(scobo.x, gradient=True)
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm <= target_epsilon:
             termination = True
 
     return scobo.function_vals, scobo.queries
 
 
-def run_CMA_pycutest(problem, x0, query_budget, target_func_value):
+def run_CMA_pycutest(problem, x0, query_budget, target_epsilon):
     # CMA.
     print('RUNNING ALGORITHM CMA....')
     p = problem
@@ -146,7 +154,9 @@ def run_CMA_pycutest(problem, x0, query_budget, target_func_value):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = cma.step()
-        if func_value[-1] <= target_func_value:
+        _, grad = p.obj(cma.x, gradient=True)
+        grad_norm = np.linalg.norm(grad)
+        if grad_norm <= target_epsilon:
             termination = True
 
     return cma.f_vals, cma.queries
