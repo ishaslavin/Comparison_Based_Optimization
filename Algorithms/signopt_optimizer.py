@@ -38,8 +38,9 @@ class SignOPT(BaseOptimizer):
             if self.debug_status:
                 print('comparison is' + str(comparison))
             self.queries += 1
-            g_hat += comparison*Z[i,:]
-        
+            g_hat += comparison * Z[i, :]
+        self.queries_hist.append(self.queries)
+
         g_hat = g_hat / self.m
         if self.debug_status:
             print(['Gradient is ', g_hat])
@@ -58,7 +59,7 @@ class SignOPT(BaseOptimizer):
             # if budget is reached return current iterate.
             # solution, list of all function values, termination.
             if self._function is not None:
-                return self.x, self.f_vals, 'B', self.queries
+                return self.x, self.f_vals, 'B', self.queries_hist
             else:
                 return None, None, 'B', None
-        return self.x, self.f_vals, False, self.queries
+        return self.x, self.f_vals, False, self.queries_hist

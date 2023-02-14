@@ -79,6 +79,7 @@ class SCOBOoptimizer(BaseOptimizer):
     def step(self):
         g_hat = self.GradientEstimator(self.x)
         self.queries += self.m
+        self.queries_hist.append(self.queries)
         self.x = self.x - self.step_size * g_hat
         tempval = self._function(self.x)
 
@@ -86,12 +87,12 @@ class SCOBOoptimizer(BaseOptimizer):
             # if budget is reached terminate.
             if self._function is not None:
                 self.function_vals.append(tempval)
-                return self.x, self.function_vals, 'B', self.queries
+                return self.x, self.function_vals, 'B', self.queries_hist
             else:
                 return None, None, 'B', None
         else:
             if self._function is not None:
                 self.function_vals.append(tempval)
-                return self.x, self.function_vals, False, self.queries
+                return self.x, self.function_vals, False, self.queries_hist
             else:
                 return None, None, False, None

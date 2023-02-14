@@ -39,10 +39,12 @@ obj_func_3 = NonSparseQuadratic(n, noiseamp)
 # decide which function we will benchmark on.
 objective_function_choice = obj_func_1
 # oracle.
-main_oracle = NoisyOracle(objective_function_choice)
+# main_oracle = NoisyOracle(objective_function_choice)
 oracle_1 = Oracle(obj_func_1)
 oracle_2 = Oracle(obj_func_2)
 oracle_3 = Oracle(obj_func_3)
+
+main_oracle_use = Oracle(objective_function_choice)
 # initialize lists.
 stp_func_list = []
 gld_func_list = []
@@ -71,13 +73,21 @@ def run_STP(number_of_runs):
         random.seed()
         x_0 = copy.copy(X_0)
         # stp instance.
-        stp = STPOptimizer(main_oracle, query_budget, x_0, a_k, function=obj_func_1)
+        stp = STPOptimizer(main_oracle_use, query_budget, x_0, a_k, function=objective_function_choice)
+        '''
         # step.
         termination = False
         stp_queries = []
         while termination is False:
             solution, func_value, termination, queries = stp.step()
-            stp_queries.append(queries)
+            stp_queries.append(queries[-1])
+            if func_value[-1] <= target_func_value:
+                termination = True
+        '''
+        # step
+        termination = False
+        while termination is False:
+            solution, func_value, termination, queries = stp.step()
             if func_value[-1] <= target_func_value:
                 termination = True
         # plot the decreasing function.
@@ -92,7 +102,7 @@ def run_STP(number_of_runs):
         # append array of function values to STP list.
         stp_func_list.append(func_value_arr)
         print('stp: ', len(func_value_arr))
-    return stp_queries
+    return stp.queries_hist
 
 
 # call GLD.
@@ -106,13 +116,12 @@ def run_GLD(number_of_runs):
         R_ = 10
         r_ = .01
         # GLDOptimizer instance.
-        gld = GLDOptimizer(main_oracle, query_budget, x_0_, R_, r_, function=obj_func_1)
+        gld = GLDOptimizer(main_oracle_use, query_budget, x_0_, R_, r_, function=objective_function_choice)
         # step.
         termination = False
         gld_queries = []
         while termination is False:
             solution, func_value, termination, queries = gld.step()
-            gld_queries.append(queries)
             if func_value[-1] <= target_func_value:
                 termination = True
         # print the solution.
@@ -129,7 +138,7 @@ def run_GLD(number_of_runs):
         # append array of function values to STP list.
         gld_func_list.append(func_value_2_arr)
         print('gld: ', len(func_value_2_arr))
-    return gld_queries
+    return gld.queries_hist
 
 
 # call SignOPT.
@@ -143,8 +152,8 @@ def run_SignOPT(number_of_runs):
         step_size = 0.2
         r = 0.1
         # SignOPT instance.
-        signopt = SignOPT(main_oracle, query_budget, x0, m, step_size, r, debug=False,
-                          function=obj_func_1)
+        signopt = SignOPT(main_oracle_use, query_budget, x0, m, step_size, r, debug=False,
+                          function=objective_function_choice)
         # step.
         termination = False
         while termination is False:
@@ -157,6 +166,7 @@ def run_SignOPT(number_of_runs):
         func_value_3_arr = np.array(signopt.f_vals)
         signOPT_func_list.append(func_value_3_arr)
         print('signOPT: ', len(func_value_3_arr))
+    return signopt.queries_hist
 
 
 # call SCOBO.
@@ -171,7 +181,8 @@ def run_SCOBO(number_of_runs):
         m = 100
         s_ex = 20
         # SCOBO instance.
-        scobo = SCOBOoptimizer(main_oracle, step_size, query_budget, x0, r, m, s_ex, function=obj_func_1)
+        scobo = SCOBOoptimizer(main_oracle_use, step_size, query_budget, x0, r, m, s_ex,
+                                                  function=objective_function_choice)
         # step.
         termination = False
         while termination is False:
@@ -183,6 +194,8 @@ def run_SCOBO(number_of_runs):
         func_value_4_arr = np.array(scobo.function_vals)
         scobo_func_list.append(func_value_4_arr)
         print('scobo: ', len(func_value_4_arr))
+
+    return scobo.queries_hist
 
 
 # call CMA.
@@ -197,7 +210,7 @@ def run_CMA(number_of_runs):
         mu = 5
         sigma = 0.5
         # CMA_ES instance.
-        cma = CMA(main_oracle, query_budget, x0, lam, mu, sigma, function=obj_func_1)
+        cma = CMA(main_oracle_use, query_budget, x0, lam, mu, sigma, function=objective_function_choice)
         # step.
         termination = False
         while termination is False:
@@ -210,17 +223,19 @@ def run_CMA(number_of_runs):
         cma_func_list.append(func_value_5_arr)
         print('cma: ', len(func_value_5_arr))
 
+    return cma.queries_hist
+
 
 # invoke.
 # STP:
 print('\n')
 print('STP....')
-x_stp = run_STP(3)
+stp_X = run_STP(3)
 print(len(stp_func_list))
 # GLD:
 print('\n')
 print('GLD....')
-x_gld = run_GLD(3)
+gld_X = run_GLD(3)
 print(len(gld_func_list))
 print('\n')
 print('*********')
@@ -231,17 +246,17 @@ print('\n')
 # SignOPT:
 print('\n')
 print('SIGNOPT....')
-run_SignOPT(3)
+signopt_X = run_SignOPT(3)
 print(len(signOPT_func_list))
 # SCOBO:
 print('\n')
 print('SCOBO....')
-run_SCOBO(3)
+scobo_X = run_SCOBO(3)
 print(len(scobo_func_list))
 # CMA:
 print('\n')
 print('CMA....')
-run_CMA(3)
+cma_X = run_CMA(3)
 print(len(cma_func_list))
 
 # mean & standard deviation lists.
@@ -273,7 +288,7 @@ std_dev_CMA_list = std_dev_CMA.tolist()
 
 # axes.
 x = range(0, 1002, 2)
-x_2 = x_gld
+# x_2 = x_gld
 x_3 = range(0, 1100, 100)
 x_4 = range(0, 1100, 100)
 x_5 = range(0, 950, int(1000/len(cma_func_list[0])))
@@ -323,21 +338,23 @@ y_error_top_list_5 = y_error_top_5.tolist()
 plt.figure()
 
 # graph the figure.
-plt.plot(x, y_1, color='orange', label='STP')
-plt.plot(x_2, y_2, color='blue', label='GLD')
-plt.plot(x_3, y_3, color='black', label='SignOPT')
-plt.plot(x_4, y_4, color='purple', label='SCOBO')
-plt.plot(x_5, y_5, color='green', label='CMA')
+plt.plot(stp_X, y_1, color='orange', label='STP')
+print('stp_X: ', stp_X)
+print('length: ', len(stp_X))
+plt.plot(gld_X, y_2, color='blue', label='GLD')
+plt.plot(signopt_X, y_3, color='black', label='SignOPT')
+plt.plot(scobo_X, y_4, color='purple', label='SCOBO')
+plt.plot(cma_X, y_5, color='green', label='CMA')
 # fill in error margins.
-plt.fill_between(x, y_error_bottom_list_1, y_error_top_list_1, color='orange', alpha=.2)
-plt.fill_between(x_2, y_error_bottom_list_2, y_error_top_list_2, color='blue', alpha=.2)
-plt.fill_between(x_3, y_error_bottom_list_3, y_error_top_list_3, color='black', alpha=.2)
-plt.fill_between(x_4, y_error_bottom_list_4, y_error_top_list_4, color='purple', alpha=.2)
-plt.fill_between(x_5, y_error_bottom_list_5, y_error_top_list_5, color='green', alpha=.2)
+plt.fill_between(stp_X, y_error_bottom_list_1, y_error_top_list_1, color='orange', alpha=.2)
+plt.fill_between(gld_X, y_error_bottom_list_2, y_error_top_list_2, color='blue', alpha=.2)
+plt.fill_between(signopt_X, y_error_bottom_list_3, y_error_top_list_3, color='black', alpha=.2)
+plt.fill_between(scobo_X, y_error_bottom_list_4, y_error_top_list_4, color='purple', alpha=.2)
+plt.fill_between(cma_X, y_error_bottom_list_5, y_error_top_list_5, color='green', alpha=.2)
 
 # name axes & show graph.
 plt.xlabel('number of oracle queries')
-plt.ylabel('function values')
+plt.ylabel('optimality gap')
 plt.legend()
 plt.show()
 plt.close()

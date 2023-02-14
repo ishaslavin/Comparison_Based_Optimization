@@ -15,9 +15,9 @@ class STPOptimizer(BaseOptimizer):
         self.step_size = step_size
         self.list_of_sk = []
         self.x_vals = [x0]
-        
-        if self._function is not None:
-            self.f_vals = [self._function(x0)]
+        # track num of queries made so far.
+        # track f(x) at current x.
+        # make change to all files.
 
     def step(self):
         sampling_direction = random_sampling_directions(1, self.n, 'gaussian')
@@ -28,6 +28,7 @@ class STPOptimizer(BaseOptimizer):
         if len(v_list) > 1:
             argmin, function_evaluations = multiple_comparisons_oracle_2(v_list, self.oracle)
             self.queries += function_evaluations
+            self.queries_hist.append(self.queries)
             self.x = argmin[0]
             self.x_vals.append(argmin[0])
             
@@ -39,7 +40,7 @@ class STPOptimizer(BaseOptimizer):
             # if budget is reached return current iterate.
             # solution, list of all function values, termination.
             if self._function is not None:
-                return self.x, self.f_vals, 'B', self.queries
+                return self.x, self.f_vals, 'B', self.queries_hist
             else:
                 return None, None, 'B', None
-        return self.x, self.f_vals, False, self.queries
+        return self.x, self.f_vals, False, self.queries_hist

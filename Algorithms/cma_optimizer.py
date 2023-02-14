@@ -51,7 +51,8 @@ class CMA(BaseOptimizer):
         if self.number_steps == 0:
             self.number_steps += 1
             self.queries += 1
-            return self.x, self.f_vals, False, self.queries  # self.function(self.m)
+            # self.queries_hist.append(self.queries)
+            return self.x, self.f_vals, False, self.queries_hist  # self.function(self.m)
 
         self.number_steps += 1
 
@@ -63,6 +64,7 @@ class CMA(BaseOptimizer):
         # The next line sorts according to function values
         Sorted_Xg, num_queries = BubbleSort(Xg, self.oracle)
         self.queries += num_queries
+        self.queries_hist.append(self.queries)
         Sorted_Yg = (Sorted_Xg - self.x) / self.sigma
         # print(Sorted_Yg.shape)
 
@@ -93,6 +95,6 @@ class CMA(BaseOptimizer):
         if self.reachedFunctionBudget(self.query_budget, self.queries):
             # if budget is reached return parent.
             # solution, list of all function values, termination.
-            return self.x, self.f_vals, 'B', self.queries
+            return self.x, self.f_vals, 'B', self.queries_hist
         # return solution, list of all function values, termination (which will be False here).
-        return self.x, self.f_vals, False, self.queries
+        return self.x, self.f_vals, False, self.queries_hist

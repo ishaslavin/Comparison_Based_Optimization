@@ -16,9 +16,13 @@ class BaseOptimizer(object):
         self.oracle = oracle
         self.query_budget = query_budget
         self.queries = 0
+        self.queries_hist = [0]
         self.x = x0
         self.n = len(x0)
         self._function = function
+
+        if self._function is not None:
+            self.f_vals = [self._function(x0)]
 
     @staticmethod
     def reachedFunctionTarget(function_target, candidate_fitness):

@@ -63,6 +63,7 @@ class GLDOptimizer(BaseOptimizer):
         if len(v_list) > 1:
             argmin, function_evaluations = multiple_comparisons_oracle_2(v_list, self.oracle)
             self.queries += function_evaluations
+            self.queries_hist.append(self.queries)
             v_list = argmin
         # *********
 
@@ -79,8 +80,8 @@ class GLDOptimizer(BaseOptimizer):
         if self.reachedFunctionBudget(self.query_budget, self.queries):
             # if budget is reached return parent.
             # solution, list of all function values, termination.
-            while len(self.f_vals) > (self.query_budget/2):
+            while len(self.f_vals) > (self.query_budget/2 + 1):
                 self.f_vals.pop()
-            return x_t, self.f_vals, 'B', self.queries
+            return x_t, self.f_vals, 'B', self.queries_hist
         # return solution, list of all function values, termination (which will be False here).
-        return x_t, self.f_vals, False, self.queries
+        return x_t, self.f_vals, False, self.queries_hist
