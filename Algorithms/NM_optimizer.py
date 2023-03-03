@@ -18,7 +18,7 @@ class NMOptimizer(BaseOptimizer):
         # Hard code the constants
         self.alpha=1.0
         self.gamma=2.0
-        self.rho=-0.5
+        self.rho= 0.5
         self.sigma=0.5
 
         ## Initialize simplex
