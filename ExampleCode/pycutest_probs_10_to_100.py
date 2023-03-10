@@ -8,7 +8,7 @@ from __future__ import print_function
 import pycutest
 
 # all pycutest problems.
-probs = pycutest.find_problems(constraints='U', userN=True)
+probs = pycutest.find_problems(constraints='unconstrained', userN=True)
 probs = sorted(probs)
 # find problems that are >= dimension 10 and <= dimension 100.
 probs_10_to_100 = []

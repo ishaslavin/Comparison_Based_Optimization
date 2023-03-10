@@ -28,7 +28,12 @@ def ConstructProbWithGrad(prob):
     return ProbWithGrad
 
 
-def run_STP_pycutest(problem, x0, query_budget, target_epsilon):
+def run_STP_pycutest(problem, x0, query_budget, target_epsilon, mode):
+    '''
+    mode = 'grad': stop when ||gradient(x_k)|| < target_epsilon
+    mode = 'func': step when f(x_k) < target_epsilon
+    Same applies for all other run_Alg_pycutest functions.
+    '''
     # STP.
     print('RUNNING ALGORITHM STP....')
     p = problem
@@ -44,15 +49,20 @@ def run_STP_pycutest(problem, x0, query_budget, target_epsilon):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = stp.step()
-        _, grad = p.obj(stp.x, gradient=True) 
+        f_val, grad = p.obj(stp.x, gradient=True) 
         grad_norm = np.linalg.norm(grad)
-        if grad_norm <= target_epsilon:
+        if mode == 'grad':
+            test_criterion = grad_norm
+        else:
+            test_criterion = f_val
+
+        if test_criterion <= target_epsilon:
             termination = True
 
     return stp.f_vals, stp.queries
 
 
-def run_GLD_pycutest(problem, x0, query_budget, target_epsilon):
+def run_GLD_pycutest(problem, x0, query_budget, target_epsilon, mode):
     # GLD.
     print('RUNNING ALGORITHM GLD....')
     p = problem
@@ -70,15 +80,21 @@ def run_GLD_pycutest(problem, x0, query_budget, target_epsilon):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = gld.step()
-        _, grad = p.obj(gld.x, gradient=True)
+        f_val, grad = p.obj(gld.x, gradient=True) 
         grad_norm = np.linalg.norm(grad)
-        if grad_norm <= target_epsilon:
+        if mode == 'grad':
+            test_criterion = grad_norm
+        else:
+            test_criterion = f_val
+
+        if test_criterion <= target_epsilon:
             termination = True
+
 
     return gld.f_vals, gld.queries
 
 
-def run_signOPT_pycutest(problem, x0, query_budget, target_epsilon):
+def run_signOPT_pycutest(problem, x0, query_budget, target_epsilon, mode):
     # SignOPT.
     print('RUNNING ALGORITHM SIGNOPT....')
     p = problem
@@ -98,23 +114,29 @@ def run_signOPT_pycutest(problem, x0, query_budget, target_epsilon):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = signopt.step()
-        _, grad = p.obj(signopt.x, gradient=True)
+        f_val, grad = p.obj(signopt.x, gradient=True) 
         grad_norm = np.linalg.norm(grad)
-        if grad_norm <= target_epsilon:
+        if mode == 'grad':
+            test_criterion = grad_norm
+        else:
+            test_criterion = f_val
+
+        if test_criterion <= target_epsilon:
             termination = True
+
 
     return signopt.f_vals, signopt.queries
 
 
-def run_SCOBO_pycutest(problem, x0, query_budget, target_epsilon):
+def run_SCOBO_pycutest(problem, x0, query_budget, target_epsilon, mode):
     # SCOBO.
     print('RUNNING ALGORITHM SCOBO....')
     p = problem
     n = len(x0)  # problem dimension.
-    step_size = 0.01
-    s_exact = 0.1 * n
+    step_size = 2
+    s_exact = 0.25*n
     m_scobo = int(4 * s_exact)
-    r = 0.1
+    r = 1e-3
     '''
     p.obj(x, Gradient=False) -> method which evaluates the function at x.
     '''
@@ -126,15 +148,21 @@ def run_SCOBO_pycutest(problem, x0, query_budget, target_epsilon):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = scobo.step()
-        _, grad = p.obj(scobo.x, gradient=True)
+        f_val, grad = p.obj(scobo.x, gradient=True) 
         grad_norm = np.linalg.norm(grad)
-        if grad_norm <= target_epsilon:
+        if mode == 'grad':
+            test_criterion = grad_norm
+        else:
+            test_criterion = f_val
+
+        if test_criterion <= target_epsilon:
             termination = True
+
 
     return scobo.function_vals, scobo.queries
 
 
-def run_CMA_pycutest(problem, x0, query_budget, target_epsilon):
+def run_CMA_pycutest(problem, x0, query_budget, target_epsilon, mode):
     # CMA.
     print('RUNNING ALGORITHM CMA....')
     p = problem
@@ -154,10 +182,16 @@ def run_CMA_pycutest(problem, x0, query_budget, target_epsilon):
     termination = False
     while termination is False:
         solution, func_value, termination, queries = cma.step()
-        _, grad = p.obj(cma.x, gradient=True)
+        f_val, grad = p.obj(cma.x, gradient=True) 
         grad_norm = np.linalg.norm(grad)
-        if grad_norm <= target_epsilon:
+        if mode == 'grad':
+            test_criterion = grad_norm
+        else:
+            test_criterion = f_val
+
+        if test_criterion <= target_epsilon:
             termination = True
+
 
     return cma.f_vals, cma.queries
 

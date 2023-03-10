@@ -18,6 +18,7 @@ class SCOBOoptimizer(BaseOptimizer):
         self.r = r
         self.m = m
         self.s = s
+        self.num_iter = 0
         if self._function is not None:
             # ---------
             # making sure f(x0) is outputted as first function evaluation.
@@ -82,6 +83,9 @@ class SCOBOoptimizer(BaseOptimizer):
         self.queries_hist.append(self.queries)
         self.x = self.x - self.step_size * g_hat
         tempval = self._function(self.x)
+        self.num_iter += 1
+        if self.num_iter % 100 == 0:
+            self.step_size = 0.9*self.step_size  # periodically half step-size
 
         if self.reachedFunctionBudget(self.query_budget, self.queries):
             # if budget is reached terminate.

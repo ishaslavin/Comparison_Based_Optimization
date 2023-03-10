@@ -18,31 +18,6 @@ from ExampleCode.pycutest_utils import run_STP_pycutest, run_GLD_pycutest
 from ExampleCode.pycutest_utils import run_CMA_pycutest, run_signOPT_pycutest
 from ExampleCode.pycutest_utils import ConstructProbWithGrad, run_SCOBO_pycutest
 
-# ==========================
-# 
-# Identify the relevant problems. Currently, we restrict to unconstrained 
-# problems of dimension less than 100
-#
-# ==========================
-
-print('/n Finding all problems of size less than 100 /n')
-
-probs = pycutest.find_problems(constraints='U', userN=True)
-
-# old code (checked dimension of each PyCutest problem).
-'''
-probs_under_100 = []
-for p in probs:
-    prob = pycutest.import_problem(p)
-    print('prob: ', prob)
-    x0 = prob.x0
-    # only want <= 100.
-    if 100 >= len(x0) >= 10:
-        probs_under_100.append(p)
-print('probs under 100: ')
-print(probs_under_100)
-'''
-
 # new code (reads in the list of problems to use from pycutest_probs_to_use.txt.
 probs_under_100 = []
 f = open("ExampleCode/pycutest_probs_to_use.txt", "r")
@@ -60,8 +35,7 @@ print('\n')
 # Initialize arrays to contain results. 
 #
 # ==========================
-
-num_trials = 10
+num_trials = 5
 num_algs = 5  # Will be tricky to run SCOBO on workstation.
 num_problems = len(probs_under_100)
 
@@ -85,7 +59,7 @@ for ex.
 prob_number = 0
 for problem in probs_under_100:
     #================== Work out true minimum using scipy.optimize
-    options = {"maxiter": int(1e4)}
+    # options = {"maxiter": int(1e5)}
     ProbWithGrad = ConstructProbWithGrad(problem)
     # res = sciopt.minimize(ProbWithGrad, problem.x0, method= "BFGS", jac=True, options=options)
     # target_fun_val = 1.001*res.fun # give a little leeway
@@ -96,8 +70,11 @@ for problem in probs_under_100:
     ## CHECK where oracle should be instantiated and called
     x0 = p_invoke_.x0
     print('dimension of problem: ', len(x0))
-    function_budget_ = int(1e6)  # should make this bigger?
-    target_fun_val = 0.05*p_invoke_.obj(x0)
+    function_budget_ = int(1e5)  # should make this bigger?
+    # target_epsilon = 0.05*p_invoke_.obj(x0, gradient=False)
+    _, grad = p_invoke_.obj(x0, gradient=True)
+    target_epsilon = 0.05*np.linalg.norm(grad)
+    mode = 'grad'
     for i in range(num_trials): 
         # =========================== STP ==================================== #
         print('invoking STP in a loop \n Problem number %d and iteration number %d' % (prob_number, i))
@@ -105,30 +82,29 @@ for problem in probs_under_100:
         stp_f_vals, stp_function_evals = run_STP_pycutest(p_invoke_,
                                                           copy.copy(x0),
                                                           function_budget_,
-                                                          target_fun_val)
+                                                          target_epsilon, mode)
         EVALS[alg_num_stp][prob_number][i] = stp_function_evals
-        print('\n')
-        # TODO: Finish rewriting remaining invocations.
-        # GLD.
+        print('STP function_evals ' + str(stp_function_evals) + '\n')
+
         print('invoking GLD in a loop \n Problem number %d and iteration number %d' % (prob_number, i))
         alg_num_gld = 1
         gld_f_vals, gld_function_evals = run_GLD_pycutest(p_invoke_,
                                                           copy.copy(x0),
                                                           function_budget_,
-                                                          target_fun_val)
+                                                          target_epsilon, mode)
         EVALS[alg_num_gld][prob_number][i] = gld_function_evals
         '''
         min2 = run_GLD_pycutest(p_invoke_, copy.copy(x0), function_budget_)
         GLD_err_list[i].append(min2)
         '''
-        print('\n')
+        print('GLD function_evals ' + str(gld_function_evals) + '\n')
         # SignOPT.
         print('invoking SignOPT in a loop \n Problem number %d and iteration number %d' % (prob_number, i))
         alg_num_signopt = 2
         signopt_f_vals, signopt_function_evals = run_signOPT_pycutest(p_invoke_,
                                                                       copy.copy(x0),
                                                                       function_budget_,
-                                                                      target_fun_val)
+                                                                      target_epsilon, mode)
         EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
         print('SignOPT function_evals ' + str(signopt_function_evals) + '\n')
 
@@ -140,15 +116,16 @@ for problem in probs_under_100:
             cma_f_vals, cma_function_evals = run_CMA_pycutest(p_invoke_,
                                                               copy.copy(x0),
                                                               function_budget_,
-                                                              target_fun_val)
+                                                              target_epsilon, mode)
             EVALS[alg_num_cma][prob_number][i] = cma_function_evals
         except:
             EVALS[alg_num_cma][prob_number][i] = function_budget_
+            cma_function_evals = function_budget_
         '''
         min5 = run_CMA_pycutest(p_invoke_, copy.copy(x0_invoke_), function_budget_)
         CMA_err_list[i].append(min5)
         '''
-        print('\n')
+        print('CMA function_evals ' + str(cma_function_evals) + '\n')
         
         #        EVALS[alg_num_signopt][prob_number][i] = signopt_function_evals
 #        '''
@@ -157,20 +134,23 @@ for problem in probs_under_100:
 #        '''
 #        print('\n')
        # SCOBO.
-       print('invoking SCOBO in a loop....')
-       alg_num_scobo = 4
-       scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(oracle,
+        print('invoking SCOBO in a loop....')
+        alg_num_scobo = 4
+        scobo_f_vals, scobo_function_evals = run_SCOBO_pycutest(p_invoke_,
                                                                copy.copy(x0),
                                                                function_budget_,
-                                                               target_fun_val)
-       EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
+                                                               target_epsilon, mode)
+        EVALS[alg_num_scobo][prob_number][i] = scobo_function_evals
+        print('SCOBO function_evals ' + str(scobo_function_evals) + '\n')
 
     prob_number += 1
 
-myFile = open('Results/Comparison_Opt_September_1.p', 'wb')
+filename = './Results/Comparison_Opt_March_9_grad_1e5.p'
+myFile = open(filename, 'wb')
 results = {"Evals": EVALS,
-           "target_function_param": 0.05,
-           "function_budget": function_budget_
+           "target_epsilon": 0.05,
+           "function_budget": function_budget_,
+           "mode": mode
            }
 pickle.dump(results, myFile)
 myFile.close()
