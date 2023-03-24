@@ -19,11 +19,11 @@ for p in probs:
     # all other problems.
     else:
         prob = pycutest.import_problem(p)
-        print('prob: ', prob)
         x0 = prob.x0
         # only want problems with dim <= 100.
         if 100 >= len(x0) >= 10:
-            print(len(x0))
+            print('prob: ', prob)
+            print(str(len(x0)) + '\n')
             probs_10_to_100.append(p)
 
 print('probs under 100: ')
